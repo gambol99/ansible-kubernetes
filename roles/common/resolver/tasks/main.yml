@@ -1,0 +1,16 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 11:29:58 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: add the resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+  tags:
+    - resolv
+    - common
+  when: manage_resolver

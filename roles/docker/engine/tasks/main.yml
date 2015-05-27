@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:24:43 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+  tags: docker
+
+- include: ubuntu.yml
+  when: is_ubuntu
+  tags: docker
+
+- include: coreos.yml
+  when: is_coreos
+  tags: docker
+
+- name: enable docker
+  sudo: yes
+  service: name=docker enabled=yes state=started
+  tags: docker

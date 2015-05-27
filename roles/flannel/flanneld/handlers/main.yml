@@ -1,0 +1,29 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 15:23:03 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+---
+- name: restart flannel
+  sudo: yes
+  service: name=flanneld state=restarted
+  notify:
+    - stop docker0
+    - delete docker0
+    - start docker0
+
+- name: stop docker0
+  sudo: yes
+  service: name=docker state=stopped
+
+- name: delete docker0
+  sudo: yes
+  command: ip link delete docker0
+  ignore_errors: yes
+
+- name: start docker0
+  sudo: yes
+  service: name=docker state=started
+

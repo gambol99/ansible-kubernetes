@@ -1,0 +1,17 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 15:23:10 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+# etcd url location.  Point this to the server where etcd runs
+FLANNEL_ETCD="http://{{ groups[flannel_config_group][0] }}:4001"
+
+# etcd config key.  This is the configuration key that flannel queries
+# For address range assignment
+FLANNEL_ETCD_KEY="/coreos.com/network"
+
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="-iface {{ iface }}"
+

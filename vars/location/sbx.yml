@@ -1,0 +1,61 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:22:56 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+provider: vagrant
+environment: sandbox
+dns_zone: example.com
+dns_region: sbx
+managed_resolver: true
+dns_base: "{{ dns_region }}.{{ dns_zone }}"
+dns_ttl: 90
+dns_servers:
+  - 8.8.8.8
+  - 8.8.4.4
+
+timezone: UTC
+ntp_servers:
+  - 0.uk.pool.ntp.org
+  - 1.uk.pool.ntp.org
+  - 2.uk.pool.ntp.org
+  - 3.uk.pool.ntp.org
+
+consul_datadir: /opt/consul/data
+consul_dns_domain: .consul
+consul_native: true
+consul_uidir: /opt/consul/dist
+
+mesos_overlay_network: 10.99.0.0
+mesos_overlay_prefix: 16
+mesos_subnets: 24
+mesos_subnets_min: 10.99.1.0
+mesos_subnets_max: 10.99.50.0
+mesos_backend: udp
+
+### --- ETCD --- ####
+
+### --- KUBERNETES ---- ####
+
+#
+# The overlay network is the virtual network flannels uses
+#
+kubernetes_overlay_network: 10.99.0.0
+kubernetes_overlay_prefix: 16
+kubernetes_subnets: 24
+kubernetes_subnets_min: 10.99.1.0
+kubernetes_subnets_max: 10.99.50.0
+kubernetes_backend: udp
+
+### --- WEAVE      ---- ####
+
+weave_network: 10.99.0.0
+weave_network_mask: 16
+weave_nodeid: "{{ ansible_hostname | regex_replace('[a-zA-Z]*', '') }}"
+weave_network_ip: "10.99.0.{{ weave_nodeid }}/{{ weave_network_mask }}"
+weave_cidr_mask: 24
+weave_cidr: "10.99.{{ weave_nodeid }}.0/{{ weave_cidr_mask }}"
+weave_group: mesos

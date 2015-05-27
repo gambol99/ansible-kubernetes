@@ -1,0 +1,16 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 18:31:45 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: add the virt-testing repository
+  copy:
+    src: virt-testing.repo
+    dest: /etc/yum.repos.d/virt-testing.repo
+  tags: 
+    - kubernetes
+    - kubernetes-common
+

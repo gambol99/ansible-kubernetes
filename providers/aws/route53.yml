@@ -1,0 +1,21 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-26 10:53:54 +0100 (Tue, 26 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: "updating the hosts dns for {{ hostlist }}" 
+  local_action:
+    module: route53
+    command: create
+    record: "{{ item }}"
+    zone: "{{ dns_base }}"
+    private_zone: true
+    overwrite: true
+    type: A
+    ttl: 120
+    value: "{{ hostvars[item].ec2_private_ip_address }}"
+  with_items: "{{ groups[hostlist] }}"
+  when: hostvars[item].ec2_private_ip_address is defined

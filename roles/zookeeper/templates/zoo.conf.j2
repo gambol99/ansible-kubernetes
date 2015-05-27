@@ -1,0 +1,30 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-01 10:43:19 +0100 (Fri, 01 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+# The number of milliseconds of each tick
+tickTime=5000
+# The number of ticks that the initial
+# synchronization phase can take
+initLimit=10
+# The number of ticks that can pass between
+# sending a request and getting an acknowledgement
+syncLimit=5
+# the directory where the snapshot is stored.
+dataDir=/var/lib/zookeeper
+# Place the dataLogDir to a separate physical disc for better performance
+# dataLogDir=/disk2/zookeeper
+
+# the port at which the clients will connect
+clientPort=2181
+
+{% for host in ( groups['zookeeper_servers'] | sort ) %}
+{% if host == inventory_hostname or host == ansible_fqdn %}
+server.{{ hostvars[host].ansible_hostname | regex_replace('[a-zA-Z]*', '') }}=0.0.0.0:2888:3888
+{% else %}
+server.{{ hostvars[host].ansible_hostname | regex_replace('[a-zA-Z]*', '') }}={{ host }}:2888:3888
+{% endif %}
+{% endfor %}

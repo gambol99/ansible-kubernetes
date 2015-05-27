@@ -1,0 +1,9 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 11:36:14 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- yum: name="{{ java_openjdk_release }}" state=present

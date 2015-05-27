@@ -1,0 +1,38 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-29 15:44:00 +0100 (Wed, 29 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- file: path=/config/flannel state=directory mode=0550
+  tags:  
+    - flannel
+    - flannel-config
+
+- name: get the flannel network configuration
+  shell: etcdctl get /coreos.com/network/config 2>&1
+  ignore_errors: true
+  register: flannel_config
+  tags:   
+    - flannel
+    - flannel-config
+
+- name: create the flannel network configuration
+  sudo: yes 
+  template:
+    src: flannel.network.j2
+    dest: /config/flannel/flannel.json
+  notify: 
+    - inject the flannel configuration
+  tags:   
+    - flannel
+    - flannel-config
+
+- name: inject the network configuration
+  shell: etcdctl set /coreos.com/network/config < /config/flannel/flannel.json
+  when: flannel_config.stdout.find('Key not found') 
+  tags:   
+    - flannel
+    - flannel-config

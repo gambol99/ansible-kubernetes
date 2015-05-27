@@ -1,0 +1,26 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:02:26 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: adding the kubernetes controller service
+  template: src=kubernetes-controller.service.j2 dest={{ systemd_dir }}/kubernetes-controller.service 
+  notify:
+    - reload services
+    - restart kubernetes controller 
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-controller
+
+- meta: flush_handlers
+
+- name: start the kubernetes controller service
+  service: name=kubernetes-controller state=started enabled=yes
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-controller

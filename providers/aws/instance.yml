@@ -1,0 +1,42 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 22:23:11 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: "include the provider specifics variables"
+  include_vars: "aws.yml"
+
+- name: "create the instance in aws"
+  local_action:
+    module: ec2
+    key_name: "{{ keypair }}"
+    instance_type: "{{ sku_models[sku] }}"
+    region: "{{ aws_region }}"
+    image: "{{ regions_mapping[aws_region].os[os] }}"
+    vpc_subnet_id: "{{ regions_mapping[aws_region].networks[network] }}"
+    assign_public_ip: "{{ public_ip }}"
+    wait: true
+    user_data: "{{ lookup('template', 'templates/' + os + '.aws.userdata.j2') }}"
+    exact_count: 1
+    count_tag:
+      Name: "{{ hostname }}.{{ dns_base }}"
+    instance_tags:
+      Name: "{{ hostname }}.{{ dns_base }}"
+  register: ec2
+
+- name: updating single dns record
+  local_action:
+    module: route53
+    command: create
+    record: "{{ hostname }}.{{ dns_base }}"
+    zone: "{{ dns_base }}"
+    private_zone: true
+    overwrite: true
+    type: A
+    ttl: 120
+    value: "{{ item.private_ip }}"
+  with_items: ec2.instances
+  when: ec2.changed

@@ -1,0 +1,15 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 12:39:19 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: Check if bootstrap is needed
+  raw: stat $HOME/.booted
+  register: need_bootstrap
+  ignore_errors: True
+
+
+

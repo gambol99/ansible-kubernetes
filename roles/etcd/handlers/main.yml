@@ -1,0 +1,19 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:01:18 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart etcd
+  sudo: yes
+  shell: /bin/systemctl restart etcd
+  notify:
+    - wait for etcd service
+
+- name: wait for etcd service
+  wait_for:
+    timeout: 300
+    port: 4001
+    host: "{{ hostvars[inventory_hostname]['ansible_' + iface].ipv4.address }}"

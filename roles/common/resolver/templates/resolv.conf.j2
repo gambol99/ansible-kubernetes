@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 11:29:58 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+domain {{ dns_base }}
+search {{ dns_base }}
+{% for nameserver in dns_servers %}
+nameserver {{ nameserver }}
+{% endfor %}

@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 21:32:35 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostlist | mandatory }}"
+  tasks:
+    - include_vars: "../../vars/os.yml"
+    - include_vars: "../../vars/location/{{ location | mandatory}}.yml"
+
+    - name: checking service status
+      sudo: yes
+      shell: "/bin/systemctl status {{ service | mandatory }}"
+      register: status
+      when: is_centos
+
+    - debug: var=status.stdout_lines

@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 14:37:45 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+gluster_group: glusterfs_servers
+gluster_bricks_dir: /srv/gluster/

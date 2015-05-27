@@ -1,0 +1,35 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 16:35:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: ubuntu.yml
+  when: is_ubuntu
+
+- include: centos.yml
+  when: is_centos
+
+- include: coreos.yml
+  when: is_coreos
+
+- name: create the static host file
+  sudo: yes
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+
+- name: add our ssh key for provisioning
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    path: '/root/.ssh/authorized_keys'
+    manage_dir: yes
+
+- name: create the vagrant envionment file
+  template:
+    src: environment.j2
+    dest: /etc/environment
+

@@ -1,0 +1,9 @@
+{
+  "Network": "{{ flannel_overlay_network }}/{{ flannel_overlay_prefix }}",
+  "SubnetLen": {{ flannel_subnets }},
+  "SubnetMin": "{{ flannel_subnets_min }}",
+  "SubnetMax": "{{ flannel_subnets_max }}",
+  "Backend": {
+    "Type": "{{ flannel_backend }}"
+  }
+}

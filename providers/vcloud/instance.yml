@@ -1,0 +1,29 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:48:30 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- name: include the common provider task
+  include: common.yml
+
+- name: create the instance in vcloud
+  local_action:
+    module: vcloud_vapp
+    key_name: "{{ keypair }}"
+    instance_type: "{{ sku_models[sku] }}"
+    region: "{{ aws_region }}"
+    image: "{{ regions_mapping[aws_region].os[os] }}"
+    vpc_subnet_id: "{{ regions_mapping[aws_region].networks[network] }}"
+    assign_public_ip: "{{ public_ip }}"
+    wait: true
+    user_data: "{{ lookup('template', '../../templates/centos.aws.userdata.j2') }}"
+    exact_count: "1"
+    count_tag:
+      Name: "{{ hostname }}.{{ dns_base }}"
+      group: "{{ hostgroups }}"
+    instance_tags:
+      Name: "{{ hostname }}.{{ dns_base }}"
+      group: "{{ hostgroups }}"
+  register: ec2

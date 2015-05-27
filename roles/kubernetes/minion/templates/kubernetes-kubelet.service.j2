@@ -1,0 +1,34 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 15:28:23 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=kubernetes.proxy
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
+Restart=always
+RestartSec=10
+
+ExecStart={{ kubernetes_dir }}/bin/kubelet \
+  --address=0.0.0.0 \
+  --port=10250 \
+  --hostname_override=${PRIVATE_IP} \
+  --cluster-domain={{ dns_base }} \
+  --api_servers={{ kubernetes_master }}:8080 \
+  --allow_privileged=true \
+  --logtostderr=true \
+  --healthz_bind_address=0.0.0.0 \
+  --healthz_port=10248
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Global=true

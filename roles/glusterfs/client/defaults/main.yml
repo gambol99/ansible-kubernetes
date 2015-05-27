@@ -1,0 +1,9 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 23:13:41 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+gluster_volumes: []

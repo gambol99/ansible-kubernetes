@@ -1,0 +1,53 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 22:21:58 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: "include the provider specifics variables"
+  include_vars: "aws.yml"
+
+- name: "creating multiple instances in aws"
+  local_action:
+    module: ec2
+    key_name: "{{ keypair }}"
+    region: "{{ aws_region }}"
+    instance_type: "{{ sku_models[sku] }}"
+    image: "{{ regions_mapping[aws_region].os[os] }}"
+    vpc_subnet_id: "{{ regions_mapping[aws_region].networks[network] }}"
+    wait: true
+    assign_public_ip: "{{ public_ip }}"
+    exact_count: 1
+    count_tag:
+      Name: "{{ item }}.{{ dns_base }}"
+    instance_tags:
+      Name: "{{ item }}.{{ dns_base }}"
+    user_data: "{{ lookup('template', 'templates/' + os + '.aws.userdata.j2') }}"
+  register: ec2
+  with_sequence: start=101 count="{{ instances }}" format="{{ hostname }}%d"
+
+#- name: adding newly created hosts to the group
+#  add_host: name={{ item.private_dns_name }} groups="launched"
+#  with_items: ec2.instances
+#  when: ec2.changed
+#
+#- name: gets the facts from ec2 
+#  local_action:
+#    module: ec2_facts
+#  when: ec2.changed
+#  
+#- name: updating multiple dns record
+#  local_action:
+#    module: route53
+#    command: create
+#    record: "{{ item }}"
+#    zone: "{{ dns_base }}"
+#    private_zone: true
+#    overwrite: true
+#    type: A
+#    ttl: 120
+#    value: "{{ hostvars[item].ec2_private_ip_address }}"
+#  with_items: "{{ groups['launched'] }}"
+#  when: ec2.changed and groups['launched']

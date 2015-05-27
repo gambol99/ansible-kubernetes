@@ -1,0 +1,26 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:02:26 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: adding the kubernetes scheduler service
+  template: src=kubernetes-scheduler.service.j2 dest={{ systemd_dir }}/kubernetes-scheduler.service 
+  notify:
+    - reload services
+    - restart kubernetes scheduler
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-scheduler
+
+- meta: flush_handlers
+
+- name: start the kubernetes scheduler service
+  service: name=kubernetes-scheduler state=started enabled=yes
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-scheduler

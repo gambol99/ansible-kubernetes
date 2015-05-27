@@ -1,0 +1,19 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:44:17 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: bash profile
+  template:
+    src: "{{ item }}.sh.j2"
+    dest: "/etc/profile.d/{{ item }}.sh"
+    mode: 0444
+  with_items:
+    - bash
+    - systemd
+    - ssh
+  tags:
+    - common

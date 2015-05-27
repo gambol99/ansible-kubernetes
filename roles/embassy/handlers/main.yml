@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-10 19:06:31 +0100 (Sun, 10 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart embassy
+  sudo: yes
+  command: /bin/systemctl restart embassy

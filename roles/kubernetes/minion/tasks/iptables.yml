@@ -1,0 +1,30 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 10:26:24 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: ensuring the ip masquerade for the docker host
+  sudo: yes
+  shell: /usr/sbin/iptables -L -t nat | grep -q "externel masquerading"
+  register: check_allow_externel
+  ignore_errors: yes
+  changed_when: no
+  always_run: yes
+  tags:
+    - kubernetes
+    - kubernetes-minion
+    - iptables
+
+- name: ensure iptables rules to external natting
+  sudo: yes
+  command: >
+    /usr/sbin/iptables -t nat -I POSTROUTING -s "{{ kubernetes_overlay_network }}"/"{{ kubernetes_overlay_prefix }}"
+    ! -o docker0 -m comment --comment "externel masquerading" -j MASQUERADE
+  when: check_allow_externel.rc != 0
+  tags:
+    - kubernetes
+    - kubernetes-minion
+    - iptables

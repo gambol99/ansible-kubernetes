@@ -1,0 +1,30 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:01:18 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Etcd Service
+
+[Service]
+TimeoutStartSec=10m
+EnvironmentFile=/etc/environment
+
+Restart=always
+RestartSec=10
+
+ExecStart=/usr/bin/etcd \
+  -name={{ ansible_hostname }} \
+  -addr=${PRIVATE_IP}:4001 \
+  -bind-addr=${PRIVATE_IP}:4001 \
+  -peer-addr=${PRIVATE_IP}:7001 \
+  -peer-bind-addr=${PRIVATE_IP}:7001 \
+  {% if etcd_discovery is defined %}
+  -discovery={{ etcd_discovery }} \
+  {% endif %}
+  --data-dir {{ etcd_datadir }}
+
+[Install]
+WantedBy=multi-user.target

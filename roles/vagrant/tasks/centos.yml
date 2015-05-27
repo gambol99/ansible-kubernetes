@@ -1,0 +1,15 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-30 23:15:06 +0100 (Thu, 30 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: install the package dependencies
+  yum:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - nc
+

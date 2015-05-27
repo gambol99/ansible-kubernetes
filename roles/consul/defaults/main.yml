@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-10 18:47:13 +0100 (Sun, 10 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+consul_image: progrium/consul
+consul_image_tag: latest
+consul_advertise: "{{ hostvars[inventory_hostname]['ansible_' + iface].ipv4.address }}"
+consul_bootstrap_expect: "{{ groups[consul_servers_group] | length }}"
+consul_datadir: /data
+consul_dc: dc1
+consul_disable_remote_exec: "false"
+consul_is_server: yes
+consul_retry_join: "{% for host in groups[consul_servers_group] %}{{ host }} {% endfor %}"
+consul_servers_group: consul_servers
+consul_uidir: /ui
+

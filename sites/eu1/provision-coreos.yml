@@ -1,0 +1,103 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 18:59:03 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+    site_location: eu1
+  tasks:
+    - include_vars: "../../vars/location/eu1.yml"
+    - include_vars: "../../vars/location/eu1.discovery.yml"
+
+  tags: provision
+ 
+- hosts: localhost
+  gather_facts: false
+  tasks:
+# @@TODO: need to do this from route53 domain amoung other things
+#    - name: provisioning the site via cloudformation
+#      include: ../../providers/aws/cloudformation.yaml
+#      vars:
+#        cloudformation: "{{ cloudformation }}"
+    - name: provisioning the keypairs
+      include: keypairs.yml
+    - name: provisioning the security groups
+      include: security_groups.yml
+    - name: provision domain
+      include: domain.yml
+  tags: provision
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: create the kubernetes master
+      include: ../../providers/aws/instance.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: bastion101
+        keypair: default
+        hostgroups: bastion
+        instances: 1
+        sku: medium
+        os: centos
+        public_ip: yes
+        network: web
+    - name: create the kubernetes master
+      include: ../../providers/aws/instance.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: master101
+        keypair: default
+        hostgroups: kubernetes_master
+        instances: 1
+        sku: medium
+        os: coreos
+        public_ip: yes
+        network: web
+        attributes:
+          fleet:
+            role: kubernetes-master
+            location: "{{ site_location }}"
+            cluster: "{{ site_location }}"
+    - name: creating the kubernetes minions
+      include: ../../providers/aws/instances.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: minion
+        hostgroups: kubernetes_minion
+        keypair: default
+        instances: 3
+        sku: medium
+        os: coreos
+        public_ip: "yes"
+        network: web
+        attributes:
+          fleet:
+            role: kubernetes-minion
+            location: "{{ site_location }}"
+            cluster: "{{ site_location }}-kube"
+    - name: creating the storage layer
+      include: ../../providers/aws/create.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: gluster
+        hostgroups: glusterfs_servers
+        keypair: default
+        instances: 2
+        sku: medium
+        os: centos
+        public_ip: "yes"
+        network: web
+  tags: provision
+
+- hosts: localhost
+  tasks:
+    - include: ../../providers/aws/route53.yml
+      vars:
+        hostlist: 'all'
+  

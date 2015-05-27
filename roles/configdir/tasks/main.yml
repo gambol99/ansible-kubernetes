@@ -1,0 +1,21 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-10 19:15:04 +0100 (Sun, 10 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the location configuration directory
+  sudo: yes
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0550
+  with_items:
+    - path: /config
+  tags:
+    - config
+

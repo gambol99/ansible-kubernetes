@@ -1,0 +1,72 @@
+#!/usr/bin/ruby
+#
+#   Author: Rohith
+#   Date: 2015-05-08 14:10:05 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+$:.unshift File.join(File.dirname(__FILE__),'.','./lib')
+
+require 'cli'
+require 'json'
+require 'pp'
+
+ROOT_DIR          = File.dirname(File.expand_path $0)
+EC2_PLUGIN        = "#{ROOT_DIR}/ec2.py"
+
+module Ansible
+  class AWS < Inventory
+    def list
+     group_inventory do |name, hosts, groups|
+        if !groups.nil?
+          inventory[name] ||= []
+          groups.each do |x|
+            (inventory[x] || []).each { |host| inventory[name] << host }
+          end
+          inventory[name].flatten
+        elsif hosts
+          inventory[name] = filter_group_hosts(hosts, host_inventory)
+        end
+      end
+      # step: generate the hostvars
+      host_inventory.each do |x|
+        hostvars[x] = {
+          'provider' => 'aws',
+          'location' => options[:stack],
+          'iface'    => 'eth0',
+        }.merge( aws_host(x) )
+      end
+      pretty_print(inventory)
+    end
+
+    private
+    def host_inventory
+      @aws_host_list ||= aws_hostvars.select { |host,data|
+        data['ec2_tag_Name']
+      }.map { |_,x| x['ec2_tag_Name'] }
+    end
+ 
+    def aws_host(hostname)
+      host = aws_hostvars.select { |name,x| x['ec2_tag_Name'] == hostname }
+      host[host.keys.first]
+    end
+  
+    def aws_hostvars
+      aws_inventory['_meta']['hostvars']
+    end
+
+    def aws_inventory
+      @aws ||= JSON.parse(IO.popen( [ aws_credentials, "inventory/ec2.py", "--list", :err=>[:child, :out] ] ) { |o| o.read })
+    end
+
+    def aws_credentials
+      {
+        "AWS_ACCESS_KEY_ID"     => credentials['aws_key'],
+        "AWS_SECRET_ACCESS_KEY" => credentials['aws_secret'],
+      }
+    end 
+  end
+end
+
+Ansible::AWS.new

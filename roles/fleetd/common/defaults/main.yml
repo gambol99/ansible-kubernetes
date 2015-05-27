@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-23 12:09:51 +0100 (Sat, 23 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+fleet_version: v0.10.1
+fleet_url: "https://github.com/coreos/fleet/releases/download/{{ fleet_version}}/fleet-{{ fleet_version }}-linux-amd64.tar.gz"
+fleet_dir: "/opt/fleet"
+

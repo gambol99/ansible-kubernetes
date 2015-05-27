@@ -1,0 +1,26 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-20 21:18:57 +0100 (Wed, 20 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: generate the glusterfs endpoints into kubernetes
+  sudo: yes
+  template:
+    src: endpoints.json.j2
+    dest: /config/kubernetes/endpoints.json
+  register: endpoints_changed
+  tags:
+    - gluster
+
+## @@TODO probably wanna allow for multiple endpoints 
+- name: inject the gluster endpoints into kubernetes
+  sudo: yes
+  shell: |
+    {{ kubernetes_dir }}/bin/kubectl get endpoint {{ kubernetes_gluster_name }} >/dev/null || {{ kubernetes_dir }}/bin/kubectl create -f /config/kubernetes/endpoints.json &&
+    {{ kubernetes_dir }}/bin/kubectl update -f /config/kubernetes/endpoints.json
+  when: endpoints_changed | changed
+  tags:
+    - gluster

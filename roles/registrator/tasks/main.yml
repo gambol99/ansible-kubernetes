@@ -1,0 +1,33 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:22:49 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: configure registrator
+  sudo: yes
+  template:
+    src: registrator.service.j2
+    dest: "{{ systemd_dir }}/{{ registrator_service }}.service"
+  register: service_changed
+  notify:
+    - reload services
+  tags: registrator
+
+- meta: flush_handlers
+
+- name: restart the registrator service
+  shell: "/bin/systemctl restart {{ registrator_service }}"
+  when: service_changed | changed
+  tags: registrator
+
+- meta: flush_handlers
+
+- name: ensure the registrator service
+  service:
+    name: "{{ registrator_service }}"
+    enabled: yes
+    state: started
+  tags: registrator

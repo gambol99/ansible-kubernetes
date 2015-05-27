@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 16:35:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostname }}"
+  gather_facts: false
+  roles:
+    - { role: coreos, when: is_coreos }
+
+- hosts: "{{ hostname }}"
+  tasks:
+    - include_vars: "vars/os.yml"
+
+- hosts: "{{ hostname }}"
+  roles:
+    - vagrant

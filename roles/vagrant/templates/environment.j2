@@ -1,0 +1,14 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 16:35:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+IFACE="{{ iface }}"
+PRIMARY_INTERFACE="{{ iface }}"
+{% if is_coreos %}
+PRIVATE_IP={{ ansible_eth1.ipv4.address }}
+{% else %}
+PRIVATE_IP={{ ansible_enp0s8.ipv4.address }}
+{% endif %}

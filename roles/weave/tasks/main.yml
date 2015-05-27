@@ -1,0 +1,91 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 16:53:37 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: install weave script
+  sudo: yes
+  get_url:
+    url: "{{ weave_release }}"
+    dest: /usr/local/bin/weave
+    mode: 0755
+  tags: weave
+
+- name: add the environment
+  template: src=weave-environment.j2 dest=/etc/weave-environment mode=0440
+  tags: weave
+
+- name: adding the weave services
+  sudo: yes
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ systemd_dir}}/{{ item.dest }}"
+    mode: 0444
+  notify:
+    - reload services
+  with_items:
+    - src: weave-bridge.service.j2
+      dest: weave-bridge.service
+    - src: weave.service.j2
+      dest: weave.service
+  tags: weave
+
+- meta: flush_handlers
+
+- name: create the weave bridge
+  sudo: yes
+  service:
+    name: weave-bridge
+    state: started
+  register: bridge_changed
+  when: "'weave' not in ansible_interfaces"
+  tags: weave
+
+- name: setting the ip address of the bridge
+  sudo: yes
+  shell: "ip addr add {{ weave_network_ip }} dev weave"
+  when: bridge_changed|changed
+  tags: weave
+
+- name: setup weave bridge in docker
+  lineinfile:
+    dest: /etc/sysconfig/docker-network
+    regexp: ^DOCKER_NETWORK_OPTIONS=.*
+    insertbefore: ^DOCKER_NETWORK_OPTIONS=.*
+    line: 'DOCKER_NETWORK_OPTIONS="--bridge weave --fixed-cidr={{ weave_cidr }}"'
+  notify:
+    - reload services
+    - restart docker
+  tags: weave
+
+#- name: adding the weave docker options
+#  sudo: yes
+#  template:
+#    src: weave-options.conf.j2
+#    dest: /usr/lib/systemd/system/docker.service.d/10-weave-options.conf
+#    mode: 0444
+#  notify:
+#    - reload services
+#    - restart docker
+#  tags: weave
+
+- meta: flush_handlers
+
+- name: download weave router
+  sudo: yes
+  shell: /usr/local/bin/weave setup
+  tags: weave
+
+- name: start weave router
+  sudo: yes
+  service: name=weave state=started
+  tags: weave
+
+- name: connect weave to peers
+  shell: /usr/local/bin/weave connect {{ hostvars[item]['ansible_'+iface].ipv4.address }} || true
+  when: inventory_hostname != item
+  with_items: groups[weave_group]
+  tags: weave

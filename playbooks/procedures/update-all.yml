@@ -1,0 +1,22 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 21:19:46 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostlist | mandatory }}"
+  tasks:
+    - include_vars: "../../vars/os.yml"
+    - include_vars: "../../vars/location/{{ location | mandatory}}.yml"
+    - name: performing a package update
+      sudo: yes
+      shell: yum update -y
+      when: is_centos
+
+    - name: performing a package update
+      sudo: yes
+      shell: apt-get upgrade -y
+      when: is_ubuntu
+

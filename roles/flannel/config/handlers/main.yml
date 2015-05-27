@@ -1,0 +1,14 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 18:04:59 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: inject the flannel configuration
+  shell: etcdctl set /coreos.com/network/config < /config/flannel/flannel.json
+
+- name: restart flanneld
+  sudo: yes 
+  shell: /bin/systemctl restart flanneld

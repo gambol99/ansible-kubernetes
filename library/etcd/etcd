@@ -1,0 +1,123 @@
+#!/usr/bin/ruby
+# WANT_JSON
+#
+#   Author: Rohith
+#   Date: 2015-05-19 15:54:47 +0100 (Tue, 19 May 2015)
+#
+#  vim:ts=2:sw=2:et:filetype=rb
+#
+$:.unshift File.join(File.dirname(__FILE__),'.','../rubylib')
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'etcd'
+require 'ansible-module'
+
+DOCUMENTATION = <<EOF
+---
+module: etcd
+short_description: Read and write values from etcd server.
+description:
+   - Read and write values from etcd server.
+version_added: "0.1"
+options:
+  state:
+    description:
+      - state (either present or absent).
+    required: true
+  hosts:
+    description:
+      - IP address or hostname and ports of the servers to read data from
+    required: true
+    default: null
+  key:
+    description:
+      - The etcd key (aka path) to a variable.
+    required: true
+    default: null
+  value:
+    description:
+      - The value of the target etcd item.
+    required: true
+    default: null
+  ssl_cert:
+    description:
+      - The ssl_cert file
+    required: false
+    default: null
+  ssl_key:
+    description:
+      - The ssl_cert file
+    required: false
+    default: null
+EOF
+
+module Ansible
+  class Etcd < ModuleLibrary
+
+    module_spec do
+      option :hosts,    :required => true, :type => :list
+      option :state,    :required => true
+      option :key,      :required => true
+      option :value,    :required => false
+      option :ttl,      :required => false, :type => :integer
+      option :ssl_cert, :required => false, :type => :file
+      option :ssl_key,  :required => false, :type => :file
+      optoin :ssl_ca,   :required => false, :type => :file
+    end
+
+    # step: perform the operaion
+    perform
+    output
+
+    private
+    def perform
+      get()
+
+
+    end
+
+    def delete(key)
+
+    end
+
+    def set(key, value, ttl)
+
+
+      result.merge({
+        'key'   => key,
+        'value' =>
+      })
+    end
+
+    def get(key)
+      result.merge({
+        'key'   => key,
+        'value' => etcd.get(key).value
+      })
+    end
+
+    def exists?(key)
+
+    end
+
+    def etcd
+      @etcd ||= nil
+      unless @etcd
+        options = {
+          :host => "your-etcd-host",
+          :port => 443,
+        }
+        if argument[:ssl_cert] and argument[:ssl_key]
+          options[:ssl_cert] = OpenSSL::X509::Certificate.new(File.read(argument['ssl_cert']))
+          options[:ssl_key]  = OpenSSL::PKey::RSA.new(argument['ssl_key'])
+          options[:use_ssl]  = true
+        end
+        @etcd ||= Etcd.client(options)
+      end
+      @etcd
+    end
+  end
+end
+
+Ansible::Etcd
+

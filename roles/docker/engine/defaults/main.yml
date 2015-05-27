@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:25:02 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+centos_docker_version: 1.5.0-1.el7
+

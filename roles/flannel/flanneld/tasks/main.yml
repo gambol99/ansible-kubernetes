@@ -1,0 +1,28 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 15:19:49 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+  tags:
+    - flannel
+    - flanneld
+
+- name: ensure flannel service
+  sudo: yes
+  service: name=flanneld state=started enabled=yes
+  notify:
+    - stop docker0
+    - delete docker0
+    - start docker0
+  tags:
+    - flannel
+    - flanneld
+
+- meta: flush_handlers
+
+- include: iptables.yml

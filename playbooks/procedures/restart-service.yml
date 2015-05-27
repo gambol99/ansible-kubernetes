@@ -1,0 +1,17 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 21:29:56 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostlist | mandatory }}"
+  tasks:
+    - include_vars: "../../vars/os.yml"
+    - include_vars: "../../vars/location/{{ location | mandatory}}.yml"
+
+    - name: restarting service
+      sudo: yes
+      shell: "/bin/systemctl restart {{ service | mandatory }}"
+      when: is_centos

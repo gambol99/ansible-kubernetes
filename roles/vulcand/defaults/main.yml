@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-13 14:37:07 +0100 (Wed, 13 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+vulcand_image: mailgun/vulcand
+vulcand_image_tag: latest
+vulcand_port: 8181
+vulcand_admin_port: 8182
+vulcand_etcd_group: etcd_servers

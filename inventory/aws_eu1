@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+#   Author: Rohith
+#   Date: 2015-05-24 19:32:50 +0100 (Sun, 24 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+inventory/aws -s eu1

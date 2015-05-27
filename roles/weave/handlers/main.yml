@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 16:54:09 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart docker
+  service: name=docker state=restarted
+
+- name: restart weave
+  service: name=weave state=restarted

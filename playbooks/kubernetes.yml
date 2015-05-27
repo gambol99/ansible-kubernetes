@@ -1,0 +1,59 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-29 15:44:00 +0100 (Wed, 29 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: all
+  sudo: yes
+  tasks:
+    - include_vars: "../vars/location/{{ location | mandatory }}.yml"
+    - include_vars: "../vars/os.yml"
+    - include: "../vars/facts/main.yml"
+  tags:
+    - location
+
+- name: creating the kubernetes master
+  hosts: localhost
+  include: providers/create_instance.yml
+  vars:
+    location: "{{ location | mandatory }}"
+    hostname: master101
+    keypair: default
+    hostgroups: kubernetes_master
+    instances: 1
+    sku: medium
+    os: centos
+    public_ip: yes
+    network: web
+    attributes:
+      fleet:
+        role: kubernetes-master
+        location: "{{ location }}"
+        cluster: "{{ location }}-kube"
+
+  tasks:
+    - name: include the location
+      include_vars: "../vars/{{ location | mandatory }}"
+
+- name: provisioning the kubernetes cluster
+  hosts: localhost
+  include: providers/create_instance.yml
+  vars:
+    location: "{{ location | mandatory }}"
+    hostname: minion
+    hostgroups: kubernetes_minion
+    nodeid: 101
+    keypair: default
+    instances: 2
+    sku: medium
+    os: centos
+    public_ip: "no"
+    network: web
+    attributes:
+      fleet:
+        role: kubernetes-minion
+        location: "{{ location }}"
+        cluster: "{{ location }}-kube"

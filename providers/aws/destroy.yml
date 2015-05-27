@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 16:44:49 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: include the provider specifics
+  include_vars: "../../../vars/{{ provider }}.yml"
+
+- name: gather the facts from aws
+  local_action: ec2_facts
+
+- name: "destroying the instance {{ hostname }}"
+  local_action:
+    module: ec2
+      state: 'absent'
+      instance_ids: '{{ hostname }}'
+  register: ec2

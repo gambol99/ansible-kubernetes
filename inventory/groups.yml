@@ -1,0 +1,66 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:57:11 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+groups:
+  - name: bastion
+    hosts: bastion101
+
+  - name: chronos
+    hosts: mesos101
+
+  - name: consul_servers
+    hosts: mesos[0-9]{1,3}
+
+  - name: coreos
+    hosts: (mincore|coreos)[0-9]{1,3}
+
+  - name: docker
+    hosts: docker
+
+  - name: docker-cache
+    hosts: cache[0-9]{1,3}
+
+  - name: etcd_servers
+    hosts: master101
+
+  - name: glusterfs_servers
+    hosts: gluster[0-9]{1,3}
+
+  - name: jenkins_servers
+    hosts: jenkins[0-9]{1,3}
+
+  - name: mesos_masters
+    hosts: mesos10[12]
+
+  - name: mesos_slaves
+    hosts: mesos[0-9]{1,3}
+
+  - name: openvpn_servers
+    hosts: openvpn[0-9]{1,3}
+
+  - name: kubernetes_master
+    hosts: (master101|mincore101)
+
+  - name: kubernetes_minion
+    hosts: (minion|mincore)[0-9]{1,3}
+
+  - name: yum-mirrors
+    hosts: cache[0-9]{1,3}
+
+  - name: zookeeper_servers
+    hosts: mesos[123]
+
+  - name: kubernetes
+    groups:
+      - kubernetes_master
+      - kubernetes_minion
+
+  - name: mesos
+    groups:
+      - mesos_masters
+      - mesos_slaves

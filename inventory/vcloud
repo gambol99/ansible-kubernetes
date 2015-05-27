@@ -1,0 +1,80 @@
+#!/usr/bin/ruby
+#
+#   Author: Rohith
+#   Date: 2015-04-20 14:42:38 +0100 (Mon, 20 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+ROOT = $:.unshift File.join(File.dirname(__FILE__),'.','./lib')
+
+require 'fog'
+require 'cli'
+
+module Ansible
+  class VCloud < Inventory
+    def list
+      # step: create the groups
+      group_inventory do |name, hosts, groups|
+        if !groups.nil?
+          inventory[name] ||= []
+          groups.each do |x|
+            (inventory[x] || []).each { |host| inventory[name] << host }
+          end
+          inventory[name].flatten
+        elsif hosts
+          inventory[name] = filter_group_hosts(hosts, host_inventory)
+        end
+      end
+      # step: generate the hostvars
+      host_inventory.each do |x|
+        hostvars[x] = {
+          'provider' => 'vcloud',
+          'location' => 'dev',
+          'iface'    => 'ens32',
+        }
+      end
+      pretty_print(inventory)
+    end
+
+    private
+    # returns an array of hosts
+    def host_inventory
+      @host_inventory ||= vdc_servers(credentials['vdc'])
+    end
+
+    def organization(name = credentials['organization'])
+      if name.nil?
+        vcloud.organizations.first
+      else
+        vcloud.organizations.select { |x| x.name == name }.first
+      end
+    end
+
+    def vdcs
+      organization.vdcs.map { |x| x.name }
+    end
+
+    def vdc?(name)
+      vdcs.include?(name)
+    end
+
+    def vdc(name)
+      raise ArgumentError, "the vdc: #{name} does not exist" unless vdc?(name)
+      organization.vdcs.select { |x| x.name = name }.first
+    end
+
+    def vdc_servers(vdc_name = credentials['vdc'])
+      vdc(vdc_name).vapps.map { |x| x.vms.first.vapp_name }
+    end
+
+    def vcloud
+      @fog ||= Fog::Compute::VcloudDirector.new(
+        :vcloud_director_username      => credentials['username'],
+        :vcloud_director_password      => credentials['password'],
+        :vcloud_director_host          => credentials['api']
+      )
+    end
+  end
+end
+
+Ansible::VCloud::new

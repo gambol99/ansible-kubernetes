@@ -1,0 +1,33 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:22:23 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- name: getting the kubernetes config directory
+  file: path=/config/kubernetes state=directory mode=0550
+  tags: 
+    - kubernetes
+    - kubernetes-common
+
+- include: platform.yml
+  tags: 
+    - kubernetes
+    - kubernetes-common
+
+- name: kubernetes profile.d
+  template: src=profile.d/kubernetes.sh.j2 dest=/etc/profile.d/kubernetes.sh mode=0555
+  tags: 
+    - kubernetes
+    - kubernetes-common
+
+- name: setting the kubernetes facts
+  set_fact:
+    kubernetes_master: "{{ kubernetes_master_ip }}"
+    kubernetes_dir: "{{ kubernetes_dir }}"
+  tags: 
+    - kubernetes
+    - kubernetes-common
+    - kubernetes-master
+    - kubernetes-minion

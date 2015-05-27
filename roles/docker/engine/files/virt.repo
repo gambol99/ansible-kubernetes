@@ -1,0 +1,5 @@
+[virt-release]
+name=virt-release
+baseurl=http://cbs.centos.org/repos/virt7-release/x86_64/os/
+enabled=1
+gpgcheck=0

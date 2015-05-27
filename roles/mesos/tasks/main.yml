@@ -1,0 +1,22 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:31:53 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the mesos configuration directory
+  file:
+    path: /config/mesos
+    state: directory
+    mode: 0550
+  tags:
+    - mesos
+  when: "'mesos' in group_names"
+
+- include: mesos-master.yml
+  when: "'mesos_masters' in group_names"
+
+- include: mesos-slave.yml
+  when: "'mesos_slaves' in group_names"

@@ -1,0 +1,71 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 00:49:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+default_virtualbox: &VIRTUALBOX_DEFAULT
+  box: 'puppetlabs/centos-7.0-64-nocm'
+  url: 'https://atlas.hashicorp.com/puppetlabs/boxes/centos-7.0-64-nocm'
+  gui: false
+  resources:
+    cpus: 2
+    memory: 2048
+    biosbootmenu: disabled
+
+default_coreos_virtualbox: &COREOSBOX_DEFAULT
+  box: "coreos-stable"
+  url: "http://stable.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
+  cloudinit: 'roles/vagrant/templates/cloudinit.virtualbox.erb'
+  gui: false
+  resources:
+    cpus: 2
+    memory: 2048
+    biosbootmenu: disabled
+
+boxes:
+  gluster101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.51
+  gluster102.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.52
+  bastion101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.61
+  mesos101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.101
+  mesos102.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.102
+  master101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.200
+  minion101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.201
+  minion102.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.202
+  mincore101.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.203
+  mincore102.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.204
+  cache101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.240

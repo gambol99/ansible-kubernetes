@@ -1,0 +1,21 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-29 15:37:27 +0100 (Wed, 29 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: deploy the etcd unit file
+  sudo: yes
+  template:
+    src: etcd.service.j2
+    dest: "{{ systemd_dir }}/etcd.service"
+  register: etcd_changed
+  notify:
+    - reload services
+  when: etcd_client_only == false
+  tags: etcd
+
+- meta: flush_handlers
+

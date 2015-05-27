@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 14:34:10 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- include: gluster.yml

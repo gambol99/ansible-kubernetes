@@ -1,0 +1,28 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 15:41:54 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart docker mirror
+  sudo: yes
+  shell: /bin/systemctl restart docker-mirror
+
+- name: restart docker cache
+  sudo: yes
+  shell: /bin/systemctl restart docker-cache
+
+- name: restart kubernetes controller
+  sudo: yes
+  shell: /bin/systemctl restart kubernetes-controller
+
+- name: restart kubernetes api
+  sudo: yes
+  shell: /bin/systemctl restart kubernetes-api
+
+- name: restart kubernetes scheduler
+  sudo: yes
+  shell: /bin/systemctl restart kubernetes-scheduler
+

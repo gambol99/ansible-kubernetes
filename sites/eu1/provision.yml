@@ -1,0 +1,94 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 18:59:03 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+    site_location: eu1
+  tasks:
+    - include_vars: "../../vars/location/eu1.yml"
+  tags: provision
+ 
+- hosts: localhost
+  gather_facts: false
+  tasks:
+#    - name: provisioning the site via cloudformation
+#      include: ../../providers/aws/cloudformation.yaml
+#      vars:
+#        cloudformation: "{{ cloudformation }}"
+    - name: provisioning the keypairs
+      include: keypairs.yml
+    - name: provisioning the security groups
+      include: security_groups.yml
+    - name: provision domain
+      include: domain.yml
+  tags: provision
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: create the kubernetes master
+      include: ../../providers/aws/instance.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: master101
+        keypair: default
+        hostgroups: kubernetes_master
+        instances: 1
+        sku: medium
+        os: centos
+        public_ip: yes
+        network: web
+        attributes:
+          fleet:
+            role: kubernetes-master
+            location: "{{ site_location }}"
+            cluster: "{{ site_location }}"
+    - name: creating the kubernetes minions
+      include: ../../providers/aws/instances.yml
+      vars:
+        location: "{{ site_location }}"
+        hostname: minion
+        hostgroups: kubernetes_minion
+        keypair: default
+        instances: 3
+        sku: medium
+        os: centos
+        public_ip: "yes"
+        network: web
+        volumes:
+        - device_name: /dev/sda
+          device_type: io1
+          volume_size: 100
+        attributes:
+          fleet:
+            role: kubernetes-minion
+            location: "{{ site_location }}"
+            cluster: "{{ site_location }}-kube"
+#    - name: creating the storage layer
+#      include: ../../providers/aws/create.yml
+#      vars:
+#        location: "{{ site_location }}"
+#        hostname: gluster
+#        hostgroups: glusterfs_servers
+#        nodeid: 101
+#        keypair: default
+#        instances: 4
+#        sku: medium
+#        os: centos
+#        public_ip: "no"
+#        network: web
+  tags: provision
+
+- hosts: localhost
+  tasks:
+    - include: ../../providers/aws/route53.yml
+      vars:
+        hostlist: 'all'
+  
+

@@ -1,0 +1,29 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:31:53 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+- name: download the fleetd binary
+  get_url: url="https://github.com/coreos/fleet/releases/download/{{ fleetd_version }}/fleet-{{ fleetd_version }}-linux-amd64.tar.gz" dest=/tmp/fleetd.tar.gz mode=0440
+  tags:
+    - fleetd
+
+- name: extract the fleetd binary
+  sudo: yes
+  unarchive: src=/tmp/fleetd.tar.gz dest=/usr/local/bin copy=no
+  tags:
+    - fleetd
+
+- name: deploy the fleetd system unit
+  sudo: yes
+  template:
+    src: fleetd.service.j2
+    dest: "{{ systemd_dir }}/fleetd.service"
+  notify:
+    - reload fleetd
+    - restart fleetd
+  tags:
+    - fleetd
+
+

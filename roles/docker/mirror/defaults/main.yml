@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:19:51 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+docker_mirror_name: docker-mirror
+docker_mirror_image: nginx
+docker_mirror_tag: latest

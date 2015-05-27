@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 11:36:09 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- name: ensure the java profile
+  template: src=java.sh.j2 dest=/etc/profile.d/java.sh mode=0444

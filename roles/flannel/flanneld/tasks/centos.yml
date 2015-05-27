@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 15:20:15 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: install flannel
+  yum: name=flannel state=present
+  tags:  
+    - flannel
+    - flanneld
+
+- name: install flannel config file
+  template: src=flanneld.j2 dest=/etc/sysconfig/flanneld
+  notify: restart flannel
+  tags:  
+    - flannel
+    - flanneld

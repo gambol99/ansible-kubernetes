@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:27:29 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the docker overrides
+  file: path=/etc/systemd/system/docker.service.d state=directory mode=0775
+  

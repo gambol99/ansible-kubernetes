@@ -1,0 +1,32 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 12:51:21 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Docker cache proxy
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+TimeoutStartSec=0
+RestartSec=10
+Environment="TMPDIR=/var/tmp/"
+EnvironmentFile=/etc/environment
+
+ExecStartPre=-/usr/bin/docker kill docker-registry
+ExecStartPre=-/usr/bin/docker rm docker-registry
+ExecStartPre=/usr/bin/docker pull {{ docker_cache_image }}:{{ docker_cache_image_tag }}
+ExecStart=/usr/bin/docker run \
+  --rm \
+  -p 5000:5000 \
+  --name docker-registry \
+  -e STANDALONE=false \
+  -e GUNICORN_OPTS=[--preload] \
+  -e MIRROR_SOURCE=https://registry-1.docker.io \
+  -e MIRROR_SOURCE_INDEX=https://index.docker.io \
+  -e MIRROR_TAGS_CACHE_TTL=172800 \
+  {{ docker_cache_image }}:{{ docker_cache_image_tag }}

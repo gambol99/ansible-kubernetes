@@ -1,0 +1,27 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:39:24 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- include: ubuntu.yml
+  when: is_ubuntu
+
+- include: coreos.yml
+  when: is_coreos
+
+- name: ntp.conf
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf mode=0444
+  tags:
+    - common
+    - ntp
+
+- service: name=ntpd state=started enabled=yes
+  tags:
+    - common
+    - ntp

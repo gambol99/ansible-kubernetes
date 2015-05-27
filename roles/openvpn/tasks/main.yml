@@ -1,0 +1,45 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 21:49:38 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- name: install openvpn server key
+  sudo: yes
+  copy: src=server.key dest=/etc/openvpn/ mode=0600
+  notify: restart openvpn
+  tags: openvpn
+
+- name: install openvpn server certificate
+  sudo: yes
+  copy: src=server.crt dest=/etc/openvpn/ mode=0600
+  notify: restart openvpn
+  tags: openvpn
+
+- name: install openvpn ca certificate
+  sudo: yes
+  copy: src=ca.crt dest=/etc/openvpn/ mode=0600
+  notify: restart openvpn
+  tags: openvpn
+
+- name: install openvpn Diffie Hellmann key
+  sudo: yes
+  copy: src=dh2048.pem dest=/etc/openvpn/ mode=0600
+  notify: restart openvpn
+  tags: openvpn
+
+- name: generate the server config
+  sudo: yes
+  template: src=server.conf.j2 dest=/etc/openvpn/server.conf
+  notify: restart openvpn
+  tags: openvpn
+
+- name: ensure the openvpn service
+  service: name=openvpn state=started enabled=true
+  tags: openvpn
+

@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-05 16:50:19 +0100 (Tue, 05 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: adding the docker cache service
+  template: src=docker-cache.service.j2 dest={{ systemd_dir }}/docker-cache.service 
+  notify:
+    - reload services
+    - restart docker cache
+  tags: 
+    - docker
+    - docker-cache
+
+- meta: flush_handlers
+
+- name: start the docker cache service
+  service: name=docker-cache state=started enabled=yes
+  tags: 
+    - docker
+    - docker-cache

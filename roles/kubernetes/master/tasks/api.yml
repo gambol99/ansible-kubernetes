@@ -1,0 +1,32 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:02:26 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- debug: var="{{ systemd_dir }}/kubernetes-api.service"
+  tags: kubernetes-master
+
+- name: adding the kubernetes api service
+  sudo: yes
+  template: src=kubernetes-api.service.j2 dest={{ systemd_dir }}/kubernetes-api.service 
+  notify:
+    - reload services
+    - restart kubernetes api
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-api
+  when: fleet_deployed == false
+
+- meta: flush_handlers
+
+- name: start the kubernetes api service
+  service: name=kubernetes-api state=started enabled=yes
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-api
+  when: fleet_deployed == false

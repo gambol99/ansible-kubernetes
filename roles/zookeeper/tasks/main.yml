@@ -1,0 +1,43 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:22:49 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the zookeeper local configuration
+  sudo: yes
+  file:
+    path: /config/zookeeper
+    state: directory
+    owner: root
+    group: root
+    mode: 0550
+  tags:
+    - zookeeper
+
+- name: generate zookeeper configuration
+  sudo: yes
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0440
+  with_items:
+    - src: zoo.conf.j2
+      dest: "/config/zookeeper/zoo.cfg"
+    - src: myid.j2
+      dest: "/config/zookeeper/myid"
+    - src: zookeeper.service.j2
+      dest: "{{ systemd_dir }}/{{ zookeeper_service }}.service"
+  notify:
+    - reload services
+    - restart zookeeper
+  tags:
+    - zookeeper
+
+- name: ensure the zookeeper service
+  service: name=zookeeper enabled=yes state=started
+  tags:
+    - zookeeper
+

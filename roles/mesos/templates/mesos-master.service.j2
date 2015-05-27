@@ -1,0 +1,40 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:31:53 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Mesos Master Service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=30m
+ExecStartPre=-/usr/bin/docker kill master
+ExecStartPre=-/usr/bin/docker rm master
+ExecStartPre=/usr/bin/docker pull {{ mesos_master_image }}:{{ mesos_master_image_tag }}
+ExecStart=/usr/bin/docker run \
+    --name=master \
+    --privileged \
+    --net=host \
+    -e SERVICE_NAME=master \
+    {{ mesos_master_image }}:{{ mesos_master_image_tag }} \
+    --hostname={{ public_ip }} \
+    --ip={{ public_ip }} \
+    --zk=zk://{{ mesos_zookeeper_url }} \
+    --work_dir=/var/lib/mesos/master \
+    --log_dir=/var/log/mesos/master \
+    --quorum=1
+
+ExecStop=/usr/bin/docker stop master
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+X-Conflicts=mesos-master
+

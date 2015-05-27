@@ -1,0 +1,21 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 23:07:10 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- template: 
+    src: glusterfs.repo.j2 
+    dest: /etc/yum.repos.d/glusterfs.repo 
+    mode: 0440
+  tags: gluster
+
+- name: install glusterfs packages (CentOS)
+  action: yum name={{item}} state=installed
+  with_items:
+    - glusterfs-cli
+    - glusterfs-fuse
+  tags: gluster
+

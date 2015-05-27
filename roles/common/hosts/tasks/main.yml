@@ -1,0 +1,36 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-04 22:46:02 +0100 (Mon, 04 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: setting the public ip for this machine
+  set_fact:
+    primary_ip: "{{ hostvars[inventory_hostname]['ansible_'+iface].ipv4.address }}"
+    interface: "{{ iface }}"
+  tags: 
+    - common
+    - hosts
+  when: manage_resolver
+
+- name: configure hosts file
+  sudo: yes
+  template:
+    src: hosts.j2
+    dest: /etc/hosts 
+    mode: 0444
+  tags: 
+    - common
+    - hosts
+  when: manage_resolver
+
+  #lineinfile:
+  #  dest: /etc/hosts
+  #  regexp: "^{{ hostvars[item]['ansible_'+iface].ipv4.address }} {{ item }}"
+  #  line: "{{ hostvars[item]['ansible_'+iface].ipv4.address }} {{ item }}"
+  #  state: present
+  #when: hostvars[item]['ansible_'+iface].ipv4.address is defined
+  #with_items: groups['all']
+ 

@@ -1,0 +1,43 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:19:51 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Etcd Service
+Requires=docker.service
+After=docker.service
+
+[Service]
+TimeoutStartSec=10m
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker kill etcd
+ExecStartPre=-/usr/bin/docker rm etcd
+ExecStartPre=/usr/bin/docker pull {{ etcd_image }}:{{ etcd_image_tag }}
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+  -p 4001:4001 \
+  -p 2380:2380 \
+  -p 2379:2379 \
+  -v /data \
+  --name etcd {{ etcd_image }}:{{ etcd_image_tag }} \
+  -name {{ ansible_hostname }} \
+  -advertise-client-urls http://${PRIVATE_IP}:2379,http://${PRIVATE_IP}:4001 \
+  -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+  -initial-advertise-peer-urls http://${PRIVATE_IP}:2380 \
+  -listen-peer-urls http://0.0.0.0:2380 \
+{% if etcd_discovery is defined %}
+  -discovery={{ etcd_discovery }} \
+{% else %}
+{% if etcd_cluster_size >= 2 %}
+  -initial-cluster-token etcd-cluster-1 \
+  -initial-cluster {{ etcd_cluster_servers }} \
+{% endif %}
+{% endif %}
+  --data-dir /data"
+
+ExecStop=-/usr/bin/docker stop etcd
+
+[Install]
+WantedBy=multi-user.target

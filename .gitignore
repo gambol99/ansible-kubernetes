@@ -1,0 +1,14 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-20 14:41:34 +0100 (Mon, 20 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+*.swp
+*.pyc
+*.cache
+.vagrant/
+.aws
+.credentials.yml
+vars/location/sbx.discovery.yml

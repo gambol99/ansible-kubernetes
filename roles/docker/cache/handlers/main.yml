@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:27:29 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart docker cache
+  sudo: yes
+  shell: /bin/systemctl restart docker-cache

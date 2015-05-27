@@ -1,0 +1,39 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-22 15:44:46 +0100 (Wed, 22 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Consul Bootstrap Master
+Requires=docker.service
+After=docker.service
+
+[Service]
+TimeoutStartSec=10m
+KillMode=none
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker kill consul
+ExecStartPre=-/usr/bin/docker rm consul
+ExecStartPre=/usr/bin/docker pull {{ consul_image }}:{{ consul_image_tag }}
+ExecStart=/usr/bin/docker run \
+  --name consul \
+  -v /config/consul/consul.json:/config/consul.json \
+  -p ${PRIVATE_IP}:8300:8300 \
+  -p ${PRIVATE_IP}:8301:8301 \
+  -p ${PRIVATE_IP}:8301:8301/udp \
+  -p ${PRIVATE_IP}:8302:8302 \
+  -p ${PRIVATE_IP}:8302:8302/udp \
+  -p ${PRIVATE_IP}:8400:8400 \
+  -p ${PRIVATE_IP}:8500:8500 \
+  -p 172.17.42.1:53:53/udp \
+  {{ consul_image }}:{{ consul_image_tag }}
+
+ExecStop=/usr/bin/docker stop consul
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+X-Conflicts=consul.service

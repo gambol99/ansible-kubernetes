@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:49:11 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+skus:
+  small: t1.tiny
+  medium: m1.medium
+  large: m1.large
+  xlarge: m2.large
+
+regions:
+  eu-west-1:
+    os:
+      centos: ami-57950a20
+      coreos: ami-57950a20
+    networks:
+      vpc: vpc-d93ee5bc
+      web: subnet-83da09da
+      db: subnet-83da0932
+

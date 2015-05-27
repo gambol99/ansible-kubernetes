@@ -1,0 +1,47 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:22:49 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+
+[Unit]
+Description=Marathon
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill marathon
+ExecStartPre=-/usr/bin/docker rm marathon
+ExecStartPre=/usr/bin/docker pull {{ marathon_image }}:{{ marathon_image_tag }}
+ExecStart=/usr/bin/sh -c "/usr/bin/docker run \
+  --name marathon \
+  --net=host \
+  -e LIBPROCESS_PORT=9090 \
+  -p 8080:8080 \
+  -p 9090:9090 \
+  {{ marathon_image }}:{{ marathon_image_tag }} \
+  --master zk://{% for host in ( groups[marathon_zookeeper_group] | sort ) %}{{ host }}:2181{% if not loop.last %},{% endif %}{% endfor %}/mesos \
+  --zk zk://{% for host in ( groups[marathon_zookeeper_group] | sort )%}{{ host }}:2181{% if not loop.last %},{% endif %}{% endfor %}/marathon \
+  --zk_timeout 10000 \
+  --hostname {{ public_ip }} \
+  --http_port 8080 \
+  --event_subscriber http_callback \
+  --failover_timeout 604800 \
+  --local_port_min 10000 \
+  --local_port_max 32000 \
+  --checkpoint \
+  --task_launch_timeout 300000"
+
+ExecStop=/usr/bin/docker stop marathon
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Global=true

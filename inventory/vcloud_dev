@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+#   Author: Rohith
+#   Date: 2015-05-08 14:19:32 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+inventory/vcloud -s dev --list

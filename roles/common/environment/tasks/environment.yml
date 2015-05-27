@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:33:15 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: adding the environment file
+  template: src=environment.j2 dest=/etc/environment mode=0444
+  tags: 
+    - common
+    - environment

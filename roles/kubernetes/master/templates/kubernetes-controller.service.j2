@@ -1,0 +1,25 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:04:55 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+ [Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Requires=kubernetes-api.service
+After=kubernetes-api.service
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
+
+Restart=always
+RestartSec=10
+
+ExecStart={{ kubernetes_dir }}/bin/kube-controller-manager \
+  --cluster-name={{ kubernetes_cluster_name }} \
+  --master={{ kubernetes_master }}:8080 \
+  --machines={{ kubernetes_minion_servers }} \
+  --logtostderr=true

@@ -1,0 +1,72 @@
+#!/usr/bin/ruby
+#
+#   Author: Rohith
+#   Date: 2015-04-23 00:50:22 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+# -*- mode: ruby -*-dd
+# vi: set ft=ruby :
+
+$:.unshift File.join(File.dirname(__FILE__),'.','./lib')
+
+require 'cli'
+
+VAGRANT_INVENTORY = ".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory"
+
+module Ansible
+  class Vagrant < Inventory
+    def list
+      # step: create the groups
+      group_inventory do |name, hosts, groups|
+        if !groups.nil?
+          # add the group of groups entry
+          inventory[name] ||= []
+          groups.each do |x|
+            (inventory[x] || []).each { |host| inventory[name] << host }
+          end
+          inventory[name].flatten
+        elsif hosts
+          # step: find matching hosts for this group
+          inventory[name] = filter_group_hosts(hosts, host_inventory.keys)
+        end
+      end
+
+      # step: generate the hostvars
+      host_inventory.keys.each do |x|
+        hostvars[x] = {
+          'provider'   => 'vagrant',
+          'location'   => 'sbx',
+          'iface'      => 'enp0s8',
+        }.merge(host_inventory[x])
+        hostvars[x]['iface'] = 'eth1' if x =~ /(core|mincore)/
+      end
+      pretty_print(inventory)
+    end
+
+    private
+    def host_inventory(filename = VAGRANT_INVENTORY)
+       @hosts_inventory ||= File.exist?(filename) ? parse_vagrant_inventory(filename) : {}
+    end
+
+    def parse_vagrant_inventory(filename)
+      File.readlines(filename).inject({}) do |a,line|
+        if line =~ /ansible_ssh_host/
+          elements = line.split(' ')
+          a[elements.first] ||= {
+            'ansible_ssh_host'  => '127.0.0.1',
+            'ansible_ssh_port'  => elements.last.split('=').last,
+          }
+          ## @@@TODO need to change this
+          if elements.first =~ /^(core|mincore)/
+            a[elements.first]['ansible_ssh_user'] = 'core'
+            a[elements.first]['ansible_python_interpreter'] = 'PATH=/home/core/bin:$PATH python'
+          end
+        end
+        a
+      end
+    end
+  end
+end
+
+Ansible::Vagrant.new

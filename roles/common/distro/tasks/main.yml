@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-04 22:35:20 +0100 (Mon, 04 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- include: ubuntu.yml
+  when: is_ubuntu

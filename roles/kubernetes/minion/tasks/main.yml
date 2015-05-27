@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 15:28:56 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: iptables.yml
+  when: is_centos or is_ubuntu
+- include: proxy.yml
+- include: kubelet.yml

@@ -1,0 +1,30 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 23:07:02 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- include: centos.yml
+  when: is_centos
+
+- include: ubuntu.yml
+  when: is_ubuntu
+
+- name: creating gluster mountpoint
+  file:
+    path: "{{ item.directory }}"
+    state: directory
+  with_items: "{{ gluster_mounted_volumes }}"
+  tags: gluster
+
+- name: mount the glusterfs filesystem
+  mount:
+    name: "{{ item.directory }}"
+    fstype: glusterfs
+    src: "{{ groups[gluster_server_group][0] }}:{{ item.name }}"
+    state: mounted
+  with_items: "{{ gluster_mounted_volumes }}"
+  tags: gluster
+

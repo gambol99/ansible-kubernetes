@@ -1,0 +1,28 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 13:36:03 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+[Unit]
+Description=registrator
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker rm {{ registrator_service }}
+ExecStartPre=-/usr/bin/docker pull {{ registrator_image }}:{{ registrator_image_tag }}
+ExecStart=/usr/bin/docker run \
+    --rm \
+    --name={{ registrator_service }} \
+    --volume=/var/run/docker.sock:/tmp/docker.sock \
+    {{ registrator_image }}:{{ registrator_image_tag }} {{ registrator_backend }}
+
+ExecStop=/usr/bin/docker kill {{ registrator_service }}
+
+[Install]
+WantedBy=multi-user.target

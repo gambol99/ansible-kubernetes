@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:33:26 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+PRIVATE_IP={{ hostvars[inventory_hostname]['ansible_'+iface].ipv4.address }}
+LOCATION={{ location }}
+ENVIRONMENT={{ environment }}
+PRIMARY_INTERFACE={{ iface }}
+GOMAXPROCS={{ ansible_processor_count }}
+CPUCORES={{ ansible_processor_count }}

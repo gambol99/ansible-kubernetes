@@ -1,0 +1,20 @@
+{
+  "kind": "Endpoints",
+  "apiVersion": "v1beta3",
+  "metadata": {
+    "name": "{{ kubernetes_gluster_name }}"
+  },
+  "subsets": [
+    {%- for host in groups[kubernetes_gluster_group] -%}
+    {
+      "addresses": [{
+        "IP": "{{ hostvars[host]['ansible_'+hostvars[host]['ansible_env']['PRIMARY_INTERFACE']].ipv4.address }}"
+      }],
+      "ports": [{
+          "port": 1,
+          "protocol": "TCP"
+      }]
+    }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+  ]
+}

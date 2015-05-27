@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-10 18:54:10 +0100 (Sun, 10 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: restart zookeeper
+  sudo: yes
+  command: /bin/systemctl restart zookeeper
+

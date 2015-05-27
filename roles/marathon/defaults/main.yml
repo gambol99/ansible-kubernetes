@@ -1,0 +1,20 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-10 19:12:24 +0100 (Sun, 10 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+marathon_image: mesosphere/marathon
+marathon_image_tag: v0.8.2-RC1
+marathon_bind: "{{ marathon_ip }}:{{ marathon_port }}"
+marathon_http_credentials: ""
+marathon_ip: 127.0.0.1
+marathon_keystore_password: ""
+marathon_keystore_path: ""
+marathon_port: 8080
+marathon_public_ip: "{{ public_ip }}"
+marathon_zookeeper_group: zookeeper_servers
+
+public_ip: "{{ hostvars[inventory_hostname]['ansible_' + iface].ipv4.address }}"

@@ -1,0 +1,50 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 19:15:05 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+## TODO: needs to be merged into common
+## 
+
+- name: create a kubernetes release directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0550
+  with_items:
+    - "{{ kubernetes_dir }}"
+    - "{{ kubernetes_dir }}/bin" 
+    - "/opt/kubernetes-{{ kubernetes_version }}"
+  tags: 
+    - kubernetes
+    - kubernetes-client
+
+- name: download the kubernetes binaries
+  get_url:
+    url: "{{ kubernetes_release }}/{{ item }}"
+    dest: "/opt/kubernetes-{{ kubernetes_version }}/{{ item }}"
+    mode: 0555
+    timeout: 120
+  with_items: 
+    - kubectl
+  tags: 
+    - kubernetes
+    - kubernetes-client
+
+- name: mapping the release into platform
+  file:
+    src: "/opt/kubernetes-{{ kubernetes_version }}/{{ item }}"
+    dest: "{{ kubernetes_dir }}/bin/{{ item }}"
+    state: link
+  with_items: "{{ kubernetes_binaries }}"
+  tags: 
+    - kubernetes
+    - kubernetes-client
+
+- copy: src=profile.d/kube.sh dest=/etc/profile.d/kube.sh
+  tags: 
+    - kubernetes
+    - kubernetes-client

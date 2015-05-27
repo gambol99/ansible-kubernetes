@@ -1,0 +1,15 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-23 16:35:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- file: path=/home/core/.bashrc state=absent
+
+- name: add the python path
+  shell: echo "export PATH=$PATH:$HOME/bin" > /home/core/.bashrc
+
+- file: path=/etc/profile.d state=directory mode=775
+  sudo: yes

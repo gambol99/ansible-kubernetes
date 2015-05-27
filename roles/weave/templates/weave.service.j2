@@ -1,0 +1,27 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 16:54:27 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+[Unit]
+Description=Weave Launch
+Requires=docker.service
+After=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
+TimeoutStartSec=0
+Restart=on-failure
+RestartSec=5
+ExecStartPre=-/usr/local/bin/weave launch
+ExecStart=/usr/bin/docker attach weave
+
+ExecStop=/usr/bin/docker stop weave
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Global=true

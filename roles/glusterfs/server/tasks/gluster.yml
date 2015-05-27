@@ -1,0 +1,19 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 23:17:10 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: creating the gluster brick directories
+  sudo: yes
+  file: path={{ gluster_bricks_dir }} state=directory
+  tags: gluster
+
+- name: configure gluster peers
+  shell: gluster peer probe {{item}}
+  with_items: groups[gluster_server_group]
+  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  tags: gluster
+

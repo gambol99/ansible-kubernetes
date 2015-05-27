@@ -1,0 +1,50 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:23:01 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+provider: aws
+environment: prod
+
+dns_zone: example.com
+dns_region: eu1
+dns_base: "{{ dns_region }}.{{ dns_zone }}"
+dns_ttl: 90
+manage_resolver: false
+timezone: UTC
+ntp_servers:
+  - 0.uk.pool.ntp.org
+  - 1.uk.pool.ntp.org
+  - 2.uk.pool.ntp.org
+  - 3.uk.pool.ntp.org
+
+## KUBERNETES ============================
+kubernetes_overlay_network: 10.102.0.0
+kubernetes_overlay_prefix: 16
+kubernetes_subnets: 24
+kubernetes_subnets_min: 10.102.1.0
+kubernetes_subnets_max: 10.102.50.0
+kubernetes_backend: vxlan
+
+aws_region: eu-west-1
+aws_vpc_subnet_id: subnet-d49a35a3
+aws_docker_ami_image: ami-17395860
+aws_ec2_security_group_id: sg-c89006ad
+aws_key_name: default
+
+sku_models:
+  small: t1.tiny
+  medium: m3.medium
+  large: m1.large
+  xlarge: m2.large
+
+regions_mapping:
+  eu-west-1:
+    os:
+      centos: ami-e4ff5c93
+      coreos: ami-57950a20
+    networks:
+      vpc: vpc-d93ee5bc
+      web: subnet-83da09da
+      db: subnet-83da0932

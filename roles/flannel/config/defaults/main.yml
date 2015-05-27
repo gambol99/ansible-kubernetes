@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-02-26 20:13:31 +0000 (Thu, 26 Feb 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+flannel_backend: udp
+flannel_etcd_group: kubernetes_master

@@ -1,0 +1,21 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-21 23:54:53 +0100 (Thu, 21 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostlist | default('glusterfs_servers') }}"
+  tasks:
+    - include_vars: "../../vars/os.yml"
+    - include_vars: "../../vars/location/{{ location | mandatory }}.yml"
+
+
+- hosts: "{{ hostlist | default('glusterfs_servers') }}"
+  sudo: yes
+  tasks:
+    - name: listing the volumes
+      shell: gluster volume info
+      register: volumes
+    - debug: var="{{ volumes.stdout_lines }}"

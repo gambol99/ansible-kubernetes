@@ -1,0 +1,73 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 14:34:10 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: creating the gluster bricks
+  sudo: yes
+  file: path={{ gluster_brick_base }}/{{ gluster_volume }}/{{ item }} state=directory mode=0770
+  register: bricks_list
+  with_items: gluster_bricks
+  tags: gluster-volume
+
+- name: build bricks list
+  set_fact:
+    host_bricks_list: "{% for brick in bricks_list.results %}{% for host in (groups[gluster_server_group] | sort) %}{{ host }}:{{ brick.path }} {% endfor %}{% endfor %}"
+  tags: gluster-volume
+
+- name: configure gluster peers
+  shell: gluster peer probe {{ item }}
+  with_items: groups[gluster_server_group]
+  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  tags: gluster-volume
+
+- name: set default stripe options
+  connection: local
+  shell: if [ "{{gluster_stripes|default('x')}}" = "x" ]; then echo ""; else echo "stripe {{gluster_stripes|default('')}}"; fi
+  register: gluster_stripes
+  tags: gluster-volume
+
+- name: set default replica options
+  connection: local
+  shell: if [ "{{ gluster_replicas | default('x') }}" = "x" ]; then echo ""; else echo "replica {{gluster_replicas|default('')}}"; fi
+  register: gluster_replicas
+  tags: gluster-volume
+
+- name: set default transport options
+  connection: local
+  shell: if [  "{{ gluster_transport | default('x') }}" = "x" ]; then echo "transport tcp"; else echo "transport {{gluster_transport|default('')}}"; fi
+  register: gluster_transport
+  tags: gluster-volume
+
+- name: rate default volume
+  sudo: yes
+  shell: gluster volume info {{ gluster_volume }} ||
+         gluster volume create {{ gluster_volume }} {{ gluster_stripes.stdout }}
+         {{ gluster_replicas.stdout }} {{ gluster_transport.stdout }}
+         {{ host_bricks_list }} force
+  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  tags: gluster-volume
+
+- name: check if all the bricks have been added
+  sudo: yes
+  shell: for brick in {{ host_bricks_list.split(' ') }}; do gluster volume info {{ gluster_volume }} | grep -q $brick || echo -n "$brick "; done; true
+  register: missing_bricks
+  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  tags: gluster-volume
+
+##- name: ensure bricks are clean
+##  sudo: yes
+##  shell: gluster volume info | grep -q $(hostname):{{gluster_bricks_dir}} || (setfattr -x trusted.glusterfs.volume-id {{gluster_bricks_base}};
+##        setfattr -x trusted.gfid {{gluster_brick_dir}};
+##        rm -rf {{gluster_bricks_base}}/.glusterfs)
+##  tags: gluster-volume
+#
+- name: start default volume
+  sudo: yes
+  shell: 'gluster volume info {{ gluster_volume }} | grep "Status: Started" || gluster volume start {{ gluster_volume }}'
+  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  tags: gluster-volume
+

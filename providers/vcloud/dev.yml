@@ -1,0 +1,32 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 23:12:30 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- name: "include the location specific"
+  include_vars: "../../../../vars/{{ location }}" 
+
+- name: "creating the dev virtual datacenter"
+  vcloud_vdc:
+    name: "{{ vdc }}"
+    orgainisation: "{{ organisation }}"
+    state: present
+    
+- name: "create the virtual networks for {{ location }}"
+  vcloud_network:
+    vdc: "{{ vdc }}"
+    orgainisation: "{{ organisation }}"
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    subnet: "{{ item.subnet }}"
+    gateway: "{{ item.gateway }}"
+    fence_mode: "{{ item.fence }}"
+    is_shared: "{{ item.is_shared }}"
+    ip_pool_start: "{{ item.start_range }}"
+    ip_pool_end: "{{ item.end_range }}"
+    state: "{{ item.state }}"
+  with_item: "{{ networks }}"
+  
+  

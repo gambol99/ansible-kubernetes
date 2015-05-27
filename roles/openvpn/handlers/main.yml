@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-07 21:49:10 +0100 (Thu, 07 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- name: restart openvpn
+  service: name=openvpn state=restarted
+

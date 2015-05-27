@@ -1,0 +1,84 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-29 15:44:00 +0100 (Wed, 29 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- hosts: all
+  sudo: yes
+  tasks:
+    - include_vars: "vars/location/{{ location | mandatory }}.yml"
+    - include_vars: "vars/location/{{ location | mandatory }}.discovery.yml"
+    - include_vars: "vars/os.yml"
+    - include: "vars/facts/main.yml"
+  roles:
+    - common/environment
+  tags: location
+
+- hosts: all
+  gather_facts: false
+  sudo: yes
+  roles:
+    - common/hosts
+    - common/resolver
+    - common/distro
+    - common/ntp
+    - common/bash
+    - common/ssh_keys
+    - configdir
+
+- hosts: bastion
+  gather_facts: false
+  vars:
+    kubernetes_minion_group: kubernetes_minion
+    kubernetes_etcd_group: kubernetes_minion
+  roles:
+    - fleetd/common
+    - kubernetes/common
+
+- hosts: glusterfs_servers
+  gather_facts: false
+  vars:
+    gluster_server_group: glusterfs_servers
+  roles:
+    - glusterfs/server
+
+- hosts: kubernetes_master
+  gather_facts: false
+  sudo: yes
+  vars:
+    flannel_overlay_network: "{{ kubernetes_overlay_network }}"
+    flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
+    flannel_subnets: "{{ kubernetes_subnets }}"
+    flannel_subnets_min: "{{ kubernetes_subnets_min }}"
+    flannel_subnets_max: "{{ kubernetes_subnets_max }}"
+    flannel_backend: "{{ kubernetes_backend }}"
+    minion_interface: eth1
+    kubernetes_minion_group: kubernetes_minion
+    kubernetes_etcd_group: kubernetes_minion
+    flannel_etcd_group: kubernetes_minion
+    flannel_config_group: kubernetes_minion
+  roles:
+    - { role: docker/engine, when: is_centos }
+    - { role: docker/mirror, when: "groups['docker-cache']" }
+    - { role: fleetd/common, when: is_centos }
+    - flannel/config
+    - flannel/flanneld
+    - kubernetes/master
+    - { role: kubernetes/gluster, when: "groups['glusterfs_servers']" }
+
+- hosts: kubernetes_minion
+  gather_facts: false
+  sudo: yes
+  vars:
+    fleet_deployed: false
+    flannel_overlay_network: "{{ kubernetes_overlay_network }}"
+    flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
+    flannel_config_group: etcd_servers
+    gluster_server_group: glusterfs_servers
+    gluster_mounted_volumes: []
+  roles:
+    - flannel/flanneld
+    - kubernetes/minion
+    - gateway/http_router

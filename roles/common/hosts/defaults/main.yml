@@ -1,0 +1,9 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-04 22:46:02 +0100 (Mon, 04 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+manage_etc_hosts: true

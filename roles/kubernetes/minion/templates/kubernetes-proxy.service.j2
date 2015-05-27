@@ -1,0 +1,23 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 15:27:24 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes Proxy
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
+Restart=always
+RestartSec=10
+
+ExecStart={{ kubernetes_dir }}/bin/kube-proxy \
+  --master={{ kubernetes_master }}:8080 \
+  --logtostderr=true
+
+[X-Fleet]
+Global=true

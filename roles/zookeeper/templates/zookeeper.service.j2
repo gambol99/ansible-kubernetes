@@ -1,0 +1,37 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-01 10:52:17 +0100 (Fri, 01 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Zookeeper Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker kill zookeeper
+ExecStartPre=-/usr/bin/docker rm zookeeper
+ExecStartPre=/usr/bin/docker pull {{ zookeeper_image }}:{{ zookeeper_image_tag }}
+ExecStart=/usr/bin/docker run \
+  --net={{ zookeeper_network_mode }} \
+  -p 2181:2181 \
+  -p 2888:2888 \
+  -p 3888:3888 \
+  -v /config/zookeeper/zoo.cfg:/opt/zookeeper/conf/zoo.cfg \
+  -v /config/zookeeper/myid:/var/lib/zookeeper/myid \
+  --name zookeeper \
+  -e SERVICE_2888_NAME=zookeeper_peer \
+  -e SERVICE_3888_NAME=zookeeper_leader \
+  -e SERVICE_2181_NAME=zookeeper_client \
+  {{ zookeeper_image }}:{{ zookeeper_image_tag }}
+
+ExecStop=/usr/bin/docker stop zookeeper
+
+[Install]
+WantedBy=multi-user.target
+

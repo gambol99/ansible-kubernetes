@@ -1,0 +1,23 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-21 23:43:02 +0100 (Thu, 21 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: "{{ hostlist | default('glusterfs_servers') }}"
+  tasks:
+    - include_vars: "../../vars/os.yml"
+    - include_vars: "../../vars/location/{{ location | mandatory }}.yml"
+
+- hosts: "{{ hostlist | default('glusterfs_servers') }}"
+  vars:
+    gluster_server_group: "{{ hostlist | default('glusterfs_servers') }}"
+    gluster_volume: "{{ volume | mandatory }}"
+    gluster_bricks: 
+      - brick1
+    gluster_replicas: "{{ replicas | default('2') }}"
+  roles:
+    - ../../roles/glusterfs/volume
+

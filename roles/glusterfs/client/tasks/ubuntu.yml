@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 23:07:13 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: install glusterfs client
+  action: apt name=glusterfs-client state=installed update_cache=yes
+  tags: gluster
+

@@ -1,0 +1,140 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-22 10:13:37 +0100 (Fri, 22 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+
+daemon off;
+user nginx;
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 1024;
+  # multi_accept on;
+}
+
+http {
+
+  ##
+  # Basic Settings
+  ##
+
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+  server_tokens off;
+
+  # server_names_hash_bucket_size 64;
+  # server_name_in_redirect off;
+
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  ##
+  # Logging Settings
+  ##
+
+  # access_log /var/log/nginx/access.log;
+  access_log off;
+  error_log /var/log/nginx/error.log;
+
+  ##
+  # Gzip Settings
+  ##
+
+  gzip on;
+  gzip_disable "msie6";
+
+  ##
+  # Virtual Host Configs
+  ##
+
+  include /etc/nginx/conf.d/*.conf;
+
+  {{range $spec := getvs "/registry/services/specs/*/*"}}
+  {{$data := json $spec}}
+  {{ if $data.metadata.annotations.http_router }}
+  {{$p := json $data.metadata.annotations.http_router }}
+  {{range $proxy := $p.hosts}}
+  {{if $proxy.host }}
+  server {
+
+    {{if $proxy.port }} listen {{$proxy.port}}; {{end}}
+    server_name {{$proxy.host}};
+
+    {{if $proxy.ssl   }}
+    ssl_certificate           /etc/nginx/ssl/{{$proxy.sslCrt}};
+    ssl_certificate_key       /etc/nginx/ssl/{{$proxy.sslKey}};
+
+    ssl on;
+    ssl_session_cache  builtin:1000  shared:SSL:10m;
+    ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers on;
+    {{ end }}
+
+    {{if $proxy.path }}
+    {{range $path := $proxy.path}}
+    location {{$path}}/ {
+
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+
+      {{if $proxy.ssl   }}
+      proxy_redirect http:// https://;
+      {{ else }}
+      proxy_redirect off;
+      {{ end }}
+
+      {{if $proxy.webSocket   }}
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      {{ end }}
+
+      proxy_pass http://{{$data.spec.portalIP}}:80;
+    }
+    {{ end }}
+
+    {{ if $proxy.defaultPath}}
+    location / {
+      rewrite ^/$ {{$proxy.defaultPath}}/ permanent;
+    }
+    {{ end }}
+    {{ else }}
+    location / {
+
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+
+      {{if $proxy.ssl   }}
+      proxy_redirect http:// https://;
+      {{ else }}
+      proxy_redirect off;
+      {{ end }}
+
+      {{if $proxy.webSocket   }}
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      {{ end }}
+
+      proxy_pass http://{{$data.spec.portalIP}}:80;
+    }
+    {{ end }}
+
+  }
+  {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+}

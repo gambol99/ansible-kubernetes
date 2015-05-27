@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-08 11:27:41 +0100 (Fri, 08 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[jenkins]
+name=Jenkins-stable
+baseurl=http://pkg.jenkins-ci.org/redhat-stable
+gpgcheck=0

@@ -1,0 +1,23 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-12 14:34:38 +0100 (Tue, 12 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- template: src=glusterfs.repo.j2 dest=/etc/yum.repos.d/glusterfs.repo mode=0444
+  tags: gluster
+
+- template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo mode=0444
+  tags: gluster
+
+- name: install glusterfs packages
+  yum: name={{item}} state=installed
+  with_items:
+    - glusterfs-server
+  tags: gluster
+
+- name: ensure the glusterfs service is running
+  service: name=glusterd state=started
+  tags: gluster

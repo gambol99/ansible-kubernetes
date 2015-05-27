@@ -1,0 +1,19 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-02 12:27:34 +0100 (Sat, 02 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: install latest docker
+  sudo: yes
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - docker
+  tags: docker
+
+- name: create service override directory
+  file: path="{{ systemd_dir }}/docker.service.d" state=directory mode=0755

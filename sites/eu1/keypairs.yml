@@ -1,0 +1,28 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 21:35:56 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the default keypair
+  ec2_key:
+    name: default
+    key_material: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7K4+mLac9yexhMY5N+XtQIbTFHxVJJLlpm4/DJw3HET25AZpy7AeBDhQwgjYHd+saPUuocxNkztmYelgXkIWhIwWn2vODt0wBryt1skNs07mVm+jPawNRrEs9q+uVVAn64P+2WmyJVgsFWOkKkrnH/sypJnLSNk8WDdpqD6JLz4fsy9+zinMh7k7Xo5UfBq78pVfUS9aVlMpOj3NmdD1UpxbIBsC+ttlVR43rqrnySK9zhzezYot4PlA1LInnw8E7o8TxnJ6z2xXx5PsNMbjLW94OjpjsbvbKsKnLunA2LMc65HtOAVdPqHTWxbMuSlKjChiWJDjujdjVID8FpW09 imported-openssh-key"
+    region: "{{ aws_region }}"
+
+- name: ensure the default security group
+  ec2_group:
+    name: security_group_default
+    description: default security group
+    vpc_id: "{{ regions_mapping[aws_region].networks.vpc }}"
+    region: "{{ aws_region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: all
+        group_name: security_group_default
+

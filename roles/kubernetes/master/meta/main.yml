@@ -1,0 +1,9 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 15:26:21 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+dependencies:
+  - kubernetes/common

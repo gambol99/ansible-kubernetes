@@ -1,0 +1,39 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-20 12:47:12 +0100 (Mon, 20 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+global
+  user haproxy
+  group haproxy
+
+defaults
+  log global
+  balance roundrobin
+  timeout connect 5000
+  timeout client 50000
+  timeout server 50000
+
+listen stats
+  bind *:8001
+  mode http
+  option httpclose
+  option forwardfor
+  stats enable
+  stats uri /haproxy?stats
+  stats auth admin:dks9d921jdsd3qwd
+  stats realm HAProxy\ Statistics
+
+{{ range $item := gets "/frontends/*" }}{{ $service := json $item.Value }}
+{{ if ($service.type) eq "tcp" }}
+frontend {{ $item.Key | base }}
+  bind *:{{ $service.port }}
+  mode tcp
+  default_backend backend_{{ $item.Key | base }}
+
+backend backend_{{ $item.Key | base }}
+  mode tcp{{ range $option, $value := $service.haproxy }}
+  {{ $option }} {{ $value }}{{ end }}{{ range $x := $service.backends | printf "%s/*" | gets }}
+  {{ $backend := json $x.Value }}server {{ $backend.ip }}_{{ $backend.port }} {{ $backend.ip }}:{{ $backend.port }} check{{ end }}{{ end }}{{ end }}

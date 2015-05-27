@@ -1,0 +1,52 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-18 14:40:40 +0100 (Mon, 18 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the gateway config directory
+  file: path=/config/gateway state=directory mode=0550
+  tags: gateway
+
+- name: adding the gateway profile
+  copy: dest=/etc/profile.d/gateway.sh src=profile.d/gateway.sh mode=0555
+  tags: gateway
+
+- name: drop in gateway config
+  copy:
+    src: "{{ item }}"
+    dest: "/config/gateway/{{ item }}"
+    mode: 0440
+  with_items:
+    - haproxy.cfg.tmpl
+    - haproxy.ini
+  register: service_changed
+  notify: reload services
+  tags: gateway
+
+- name: reload the services
+  shell: /bin/systemctl daemon-reload
+  when: service_changed | changed
+  tags: gateway
+
+- name: add the gateway systemd service
+  template:
+    src: gateway.service.j2
+    dest: "{{ systemd_dir}}/{{ service_name }}.service"
+  register: service_changed
+  notify:
+    - reload services
+  tags: gateway
+
+- meta: flush_handlers
+
+- name: restarting the gateway service
+  shell: /bin/systemctl restart {{ service_name }}
+  when: service_changed | changed
+  tags: gateway
+
+- name: ensure gateway service
+  service: name={{ service_name }} state=started enabled=yes
+  tags: gateway

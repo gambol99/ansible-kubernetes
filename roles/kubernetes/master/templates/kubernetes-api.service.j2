@@ -1,0 +1,35 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:01:13 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker-mirror.service
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
+
+Restart=always
+RestartSec=10
+
+ExecStart={{ kubernetes_dir }}/bin/kube-apiserver \
+  --cluster-name={{ kubernetes_cluster_name }} \
+  --allow_privileged=true \
+  --insecure_bind_address=0.0.0.0 \
+  --insecure_port=8080 \
+  --kubelet_https=true \
+  --secure_port=6443 \
+  --portal_net={{ kubernetes_overlay_network }}/{{ kubernetes_overlay_prefix }} \
+{% if kubernetes_etcd_group is defined %}
+  --etcd_servers={% for host in ( groups[kubernetes_etcd_group] | sort ) %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %} \
+{% else %}
+  --etcd_servers=http://127.0.0.1:4001 \
+{% endif %}
+  --public_address_override=${PRIVATE_IP} \
+  --logtostderr=true
+

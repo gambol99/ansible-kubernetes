@@ -11,8 +11,9 @@ require 'yaml'
 require 'net/http'
 require 'erb'
 
-ENVIRONMENT_CONFIG   = "./config.yml"
-ETCD_DISCOVERY_TOKEN = "./vars/location/sbx.discovery.yml"
+VAGRANT_DEFAULT_PROVIDER = 'virtualbox'
+ENVIRONMENT_CONFIG       = "./config.yml"
+ETCD_DISCOVERY_TOKEN     = "./vars/location/sbx.discovery.yml"
 
 def boxes
   require ArgumentError, "unable to find the vagrant config" unless File.exist?(ENVIRONMENT_CONFIG)

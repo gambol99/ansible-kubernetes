@@ -7,27 +7,14 @@
 ---
 
 kubernetes_version: 0.16.1
-kubernetes_release: "https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version}}/bin/linux/amd64"
-kubernetes_dir: /opt/kubernetes
-kubernetes_binaries:
-  - kube-apiserver
-  - kube-controller-manager
-  - kubectl
-  - kubelet
-  - kube-proxy
-  - kubernetes
-  - kube-scheduler
-
+kubernetes_release: "https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64"
 kubernetes_cluster_name: "kube-{{ location }}"
+kubernetes_dir: /opt/kubernetes
 kubernetes_master_hostname: "{{ groups['kubernetes_master'][0] }}"
 kubernetes_master_ip: "{{ hostvars[kubernetes_master_hostname].ansible_env['PRIVATE_IP'] }}"
 kubernetes_minion_group: kubernetes_minion
 kubernetes_minion_servers: "{% for host in groups[kubernetes_minion_group] %}{{ hostvars[host].ansible_env['PRIVATE_IP'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 ## - Networking - ##
-kube_service_addresses: 10.250.1.0/24
-dns_setup: true
-dns_domain: kube.local
-dns_server: 10.254.0.10
-
-fleet_deployed: false
+fleet_delegation: "{{ kubernetes_master_hostname }}"
+fleet_endpoint: "{{ kubernetes_master_hostname }}"

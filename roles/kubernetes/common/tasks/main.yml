@@ -4,14 +4,10 @@
 #
 #  vim:ts=2:sw=2:et
 #
+---
 
 - name: getting the kubernetes config directory
   file: path=/config/kubernetes state=directory mode=0550
-  tags: 
-    - kubernetes
-    - kubernetes-common
-
-- include: platform.yml
   tags: 
     - kubernetes
     - kubernetes-common
@@ -29,5 +25,20 @@
   tags: 
     - kubernetes
     - kubernetes-common
+    - kubernetes-master
+    - kubernetes-minion
+
+- name: create a kubernetes release directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0550
+  with_items:
+    - "{{ kubernetes_dir }}"
+    - "{{ kubernetes_dir }}/bin" 
+    - "/opt/kubernetes-{{ kubernetes_version }}"
+  tags: 
+    - kubernetes
+    - kubernetes-client
     - kubernetes-master
     - kubernetes-minion

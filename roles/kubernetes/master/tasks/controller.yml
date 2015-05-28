@@ -6,6 +6,28 @@
 #
 ---
 
+- name: create the controller fleet unit
+  template: 
+    src:  kubernetes-controller.service.j2
+    dest: /config/kubernetes/kubernetes-controller.service
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-controller
+  when: fleet_deployed
+
+- name: starting the controller service via fleet
+  delegate_to: "{{ fleet_delegation }}"
+  fleet: 
+    command: start
+    endpoint: "http://{{ fleet_endpoint }}:4001"
+    unit: /config/kubernetes/kubernetes-controller.service
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-controller
+  when: fleet_deployed
+
 - name: adding the kubernetes controller service
   template: src=kubernetes-controller.service.j2 dest={{ systemd_dir }}/kubernetes-controller.service 
   notify:
@@ -15,6 +37,7 @@
     - kubernetes
     - kubernetes-master
     - kubernetes-controller
+  when: fleet_deployed == false
 
 - meta: flush_handlers
 
@@ -24,3 +47,4 @@
     - kubernetes
     - kubernetes-master
     - kubernetes-controller
+  when: fleet_deployed == false

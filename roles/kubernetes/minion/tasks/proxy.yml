@@ -17,14 +17,12 @@
   when: fleet_deployed
 
 - name: starting the kubelet service via fleet
-  delegate_to: "{{ kubernetes_master_hostname }}"
+  delegate_to: "{{ fleet_delegation }}"
   fleet: 
     command: start
-    endpoint: "http://{{ kubernetes_master_hostname }}:4001"
+    endpoint: "http://{{ fleet_endpoint }}:4001"
     unit: /config/kubernetes/kubernetes-proxy.service
   register: result
-  failed_when: result.msg != 'OK'
-  changed_when: result.msg != 'OK'
   tags: 
     - kubernetes
     - kubernetes-minion

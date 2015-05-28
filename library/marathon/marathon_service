@@ -1,0 +1,124 @@
+#!/usr/bin/python
+#
+#   Author: Rohith
+#   Date: 2015-04-23 11:05:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+import requests
+
+class MarathonService(object):
+    def __init__(self, module):
+        self._module = module
+        self._params = module.params
+        self._id = self._params["id"]
+        self._services_url = "http://" + self._params["host"] + ":" + str(self._params["port"]) + "/v2/apps"
+        self._service_url  = self._services_url + "/" + self._id
+        self._service_restart_url  = self._services_url + "/" + self._id + "/restart"
+        self._deployment_url = "http://" + self._params["host"] + ":" + str(self._params["port"]) + "/v2/deployments"
+        self._deployment_url = "http://" + self._params["host"] + ":" + str(self._params["port"]) + "/v2/deployments"
+        self._service_url = self._services_url + "/" + self._id
+
+    def is_deployed(self):
+        response = requests.get(self._deployment_url).json()
+        return isinstance(response, list) and sum(self._id in deployment["affectedApps"] for deployment in response) == 0
+
+    def wait_until_deployed(self):
+        if self._params["waitForDeployment"] not in BOOLEANS_TRUE:
+            return True
+
+        end_time = time.time() + 300  # Wait up to 5 minutes for deployment
+        while time.time() < end_time:
+            if self.is_deployed():
+                return True
+            time.sleep(10)
+        return False
+
+    def exists(self):
+        response = requests.get(self._service_url)
+        return response.status_code == requests.codes.ok
+
+    def payload(self):
+        payload = {}
+        for name in ["id", "cpus", "mem", "instances", "cmd", "args", "container", "env", "healthChecks", "uris", "constraints", "upgradeStrategy"]:
+            payload[name] = self._params[name]
+        return payload
+
+    def create(self):
+        payload = self.payload()
+
+        try:
+            return requests.post(self._services_url, params={"force": True}, data=json.dumps(payload), headers={'content-type': 'application/json'})
+        except:
+            self._module.fail_json(msg="Unable to create service " + self._services_url + " with payload " + json.dumps(payload))
+
+    def update(self):
+        payload = self.payload()
+
+        try:
+            return requests.put(self._service_url, params={"force": True}, data=json.dumps(payload), headers={'content-type': 'application/json'})
+        except:
+            self._module.fail_json(msg="Unable to update service " + self._service_url + " with payload " + json.dumps(payload))
+
+    def delete(self):
+        response = requests.delete(self._service_url)
+        return response.status_code == requests.codes.ok
+
+    def restart(self):
+        response = requests.post(self._service_restart_url)
+        return response.status_code == requests.codes.ok
+
+    
+
+    def configure(self):
+        if self.exists():
+            response = self.update()
+        else:
+            response = self.create()
+
+        if response.status_code in [200, 201]:
+            if self.wait_until_deployed():
+                self._module.exit_json(changed=True, params=self._params)
+            else:
+                self._module.fail_json(msg=self._id + " was not configured within the set time window")
+        else:
+            self._module.fail_json(msg="[" + str(response.status_code) + "] Failed to configure " + self._id + ": " + str(response.text))
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host=dict(type="str", required=True),
+            port=dict(type="int", required=True),
+            id=dict(type="str", required=True),
+            cpus=dict(type="float", required=True),
+            mem=dict(type="int", required=True),
+            instances=dict(type="int", default=1),
+            state=dict(type="str", default="started"),
+            cmd=dict(type="str", default=None),
+            args=dict(type="list", default=[]),
+            container=dict(type="dict", default={}),
+            env=dict(type="dict", default={}),
+            upgradeStrategy=dict(type="dict", default={}),
+            healthChecks=dict(type="list", default=[]),
+            dependencies=dict(type="list", default=[]),
+            constraints=dict(type="list", default=[]),
+            uris=dict(type="list", default=[]),
+            waitForDeployment=dict(choices=BOOLEANS, default='false')
+        )
+    )
+
+    marathon_service = MarathonService(module=module)
+    if module.params['state'] == "started":
+        marathon_service.configure()
+    elif module.params['state'] == "restarted":
+        module.exit_json(changed=marathon_service.restart())
+
+    elif module.params['state'] == "stopped":
+        module.exit_json(changed=marathon_service.delete())
+
+
+from ansible.module_utils.basic import *
+
+main()

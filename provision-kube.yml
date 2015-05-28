@@ -1,4 +1,4 @@
-#
+  #
 #   Author: Rohith
 #   Date: 2015-04-29 15:44:00 +0100 (Wed, 29 Apr 2015)
 #
@@ -34,8 +34,10 @@
     kubernetes_minion_group: kubernetes_minion
     kubernetes_etcd_group: kubernetes_minion
   roles:
+    - docker/engine
+    - { role: docker/mirror, when: "groups['docker-cache']" }
     - fleetd/common
-    - kubernetes/common
+    - kubernetes/client
 
 - hosts: glusterfs_servers
   gather_facts: false

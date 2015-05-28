@@ -15,5 +15,5 @@ ff02::1     ip6-allnodes
 ff02::2     ip6-allrouters
 
 {% for (hostname, host) in boxes.iteritems() %}
-{{ host.virtualbox.ip }} {{ hostname }}
+{{ host.virtualbox.ip }} {{ hostname }} {{ hostname | replace(".sbx.example.com", "") }}
 {% endfor %}

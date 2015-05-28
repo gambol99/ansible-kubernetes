@@ -24,6 +24,9 @@ ExecStart={{ kubernetes_dir }}/bin/kube-apiserver \
   --insecure_port=8080 \
   --kubelet_https=true \
   --secure_port=6443 \
+{% if kubernetes_token_auth is defined %}
+  --token_auth_file=/config/kubernetes/{{ kubernetes_token_filename }} \ 
+{% endif %}
   --portal_net={{ kubernetes_overlay_network }}/{{ kubernetes_overlay_prefix }} \
 {% if kubernetes_etcd_group is defined %}
   --etcd_servers={% for host in ( groups[kubernetes_etcd_group] | sort ) %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %} \
@@ -33,3 +36,5 @@ ExecStart={{ kubernetes_dir }}/bin/kube-apiserver \
   --public_address_override=${PRIVATE_IP} \
   --logtostderr=true
 
+[X-Fleet]
+#MachineMetadata=role=kubernetes-master

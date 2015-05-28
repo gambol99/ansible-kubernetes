@@ -7,4 +7,4 @@
 ---
 
 flannel_backend: udp
-flannel_etcd_group: kubernetes_master
+flannel_etcd_group: etcd_servers

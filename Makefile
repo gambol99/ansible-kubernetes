@@ -15,9 +15,6 @@ clean:
 	vagrant destroy -f
 	rm -f ./vars/location/sbx.discovery.yml
 
-clean-mesos:
-	vagrant destroy -f /mesos/
-
 clean-kubernetes:
 	vagrant destroy -f /master/
 	vagrant destroy -f /minion/
@@ -51,13 +48,6 @@ kube-play:
 
 kcore-play:
 	ansible-playbook -i inventory/vagrant -e location=sbx -e cluster=all provision-kube.yml
-
-mesos:
-	vagrant up /mesos/
-	make mesos-play
-
-mesos-play:
-	ansible-playbook -i inventory/vagrant -e location=sbx -e cluster=all provision-marathon.yml
 
 aws:
 	source .aws

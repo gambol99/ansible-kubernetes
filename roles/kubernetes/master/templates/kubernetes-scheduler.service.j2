@@ -13,8 +13,12 @@ After=kubernetes-api.service
 
 [Service]
 EnvironmentFile=/etc/environment
+
 Restart=always
 RestartSec=10
 
 ExecStart={{ kubernetes_dir }}/bin/kube-scheduler \
   --master={{ kubernetes_master }}:8080
+
+[X-Fleet]
+MachineOf=kubernetes-api.service

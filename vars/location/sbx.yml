@@ -17,6 +17,8 @@ dns_servers:
   - 8.8.8.8
   - 8.8.4.4
 
+fleet_deployed: true
+
 timezone: UTC
 ntp_servers:
   - 0.uk.pool.ntp.org

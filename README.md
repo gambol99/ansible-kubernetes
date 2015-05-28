@@ -34,12 +34,9 @@ The inventory requires a .credentials file to be dropped into the inventory (git
     dev:
       username <vcloud username>
       password: <well you know>
-      api: vcloud-api
+      api: api.vcd.portal.skyscapecloud.com
       vdc: <vdc>
-    eu1:
-      api-key: <AWS_KEY>
-      api-secret: <AWS_SECRET>
-    
+      organization: <organization>
     <STACK>
       <OPTIONS ETCD>
 

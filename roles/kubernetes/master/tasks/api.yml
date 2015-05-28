@@ -6,8 +6,37 @@
 #
 ---
 
-- debug: var="{{ systemd_dir }}/kubernetes-api.service"
-  tags: kubernetes-master
+- name: adding the kubernetes token authenication
+  template: src=kubernetes-token-auth.j2 dest="/config/kubernetes/{{ kubernetes_token_filename }}" mode=0400
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-api
+    - kubernetes-tokens
+  when: kubernetes_token_auth is defined
+  
+- name: create the api fleet unit
+  template: 
+    src:  kubernetes-api.service.j2
+    dest: /config/kubernetes/kubernetes-api.service
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-api
+  when: fleet_deployed
+
+- name: starting the api service via fleet
+  delegate_to: "{{ fleet_delegation }}"
+  fleet: 
+    command: start
+    endpoint: "http://{{ fleet_endpoint }}:4001"
+    unit: /config/kubernetes/kubernetes-api.service
+  register: result
+  tags: 
+    - kubernetes
+    - kubernetes-master
+    - kubernetes-api
+  when: fleet_deployed
 
 - name: adding the kubernetes api service
   sudo: yes

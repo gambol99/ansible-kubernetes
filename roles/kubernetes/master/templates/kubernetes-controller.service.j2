@@ -23,3 +23,6 @@ ExecStart={{ kubernetes_dir }}/bin/kube-controller-manager \
   --master={{ kubernetes_master }}:8080 \
   --machines={{ kubernetes_minion_servers }} \
   --logtostderr=true
+
+[X-Fleet]
+MachineOf=kubernetes-api.service

@@ -10,7 +10,6 @@
   file: path=/config/http_router state=directory mode=0550
   tags: http_router
 
-
 - name: add the http_router systemd service
   template:
     src: http_router.service.j2

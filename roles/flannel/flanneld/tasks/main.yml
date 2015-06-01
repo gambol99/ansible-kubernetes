@@ -26,3 +26,4 @@
 - meta: flush_handlers
 
 - include: iptables.yml
+  when: is_centos

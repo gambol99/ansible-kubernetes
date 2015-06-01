@@ -1,0 +1,16 @@
+---
+org_vdc_networks:
+- name: COMMON_DOCKER_SERVICES
+  description: 'Common Docker Services'
+  vdc_name: 'DEV_TEST (IL2-DEVTEST-BASIC)'
+  fence_mode: natRouted
+  edge_gateway: 'nft001cfi2'
+  is_shared: false
+  gateway: 10.7.20.1
+  netmask: 255.255.255.0
+  dns1: 8.8.8.8
+  dns2: 8.8.4.4
+  dns_suffix: dev.example.com
+  ip_ranges:
+  - start_address: 10.7.20.1
+    end_address: 10.7.20.254

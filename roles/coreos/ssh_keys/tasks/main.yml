@@ -1,0 +1,11 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-31 17:49:09 +0100 (Sun, 31 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: updating the ssh key for coreos box
+  shell:
+

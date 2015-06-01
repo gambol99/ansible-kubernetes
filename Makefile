@@ -11,43 +11,35 @@ AUTHOR=gambol99
 ansible:
 	docker build -t ${AUTHOR}/ansible .
 
+develop:
+	vagrant up /gluster101/
+	vagrant up /core101/
+	make develop-play
+
+develop-play:
+	./run -s develop -i vagrant -p configure.yml
+
 clean:
 	vagrant destroy -f
-	rm -f ./vars/location/sbx.discovery.yml
-
-clean-kubernetes:
-	vagrant destroy -f /master/
-	vagrant destroy -f /minion/
-
-clean-kube: clean-kubernetes
+	rm -f ./sites/sbx/vars/sbx.discovery.yml
 
 halt:
 	vagrant halt
 
-kuberbetes:
-	vagrant up /master/ --parallel
-	vagrant up /minion/ --parallel
-	vagrant up /gluster/ --parallel
-	make kube-play
-
-kube: kuberbetes
-
-kcore:
+sbx:
+	export VAGRANT_DEFAULT_PROVIDER=virtualbox
 	vagrant up /bastion101/
-	vagrant up /mincore101/
-	vagrant up /mincore102/
+	vagrant up /core101/
+	vagrant up /core102/
 	vagrant up /gluster/ 
-	make kcore-play
+	make sbx-play
+
+sbx-play:
+	./run -s sbx -i vagrant -p configure.yml
 
 eu1:
 	ansible-playbook -i inventory/aws_eu1 -e location=eu1 playbooks/kubernetes.yml
 	ansible-playbook -i inventory/aws_eu1 -e location=eu1 provision-kubernetes.yml
-
-kube-play:
-	ansible-playbook -i inventory/vagrant -e location=sbx -e cluster=all provision-kubernetes.yml
-
-kcore-play:
-	ansible-playbook -i inventory/vagrant -e location=sbx -e cluster=all provision-kube.yml
 
 aws:
 	source .aws

@@ -10,4 +10,8 @@
 {{ interface.upper() }}_IPV4={{ hostvars[inventory_hostname]['ansible_'+interface].ipv4.address }}
 {% endif %}
 {% endfor %}
+{% if iface is defined %}
 DEFAULT_IPV4={{ hostvars[inventory_hostname]['ansible_'+iface].ipv4.address }}
+{% else %}
+DEFAULT_IPV4={{ ansible_default_ipv4.address }}
+{% endif %}

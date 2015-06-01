@@ -7,6 +7,7 @@
 ---
 
 - name: create the scheduler fleet unit
+  delegate_to: "{{ fleet_delegation }}"
   template: 
     src:  kubernetes-scheduler.service.j2
     dest: /config/kubernetes/kubernetes-scheduler.service
@@ -14,38 +15,13 @@
     - kubernetes
     - kubernetes-master
     - kubernetes-scheduler
-  when: fleet_deployed
 
 - name: starting the scheduler service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  fleet: 
-    command: start
-    endpoint: "http://{{ fleet_endpoint }}:4001"
-    unit: /config/kubernetes/kubernetes-scheduler.service
+  sudo: yes
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-scheduler.service
   register: result
   tags: 
     - kubernetes
     - kubernetes-master
     - kubernetes-scheduler
-  when: fleet_deployed
-
-- name: adding the kubernetes scheduler service
-  template: src=kubernetes-scheduler.service.j2 dest={{ systemd_dir }}/kubernetes-scheduler.service 
-  notify:
-    - reload services
-    - restart kubernetes scheduler
-  tags: 
-    - kubernetes
-    - kubernetes-master
-    - kubernetes-scheduler
-  when: fleet_deployed == false
-
-- meta: flush_handlers
-
-- name: start the kubernetes scheduler service
-  service: name=kubernetes-scheduler state=started enabled=yes
-  tags: 
-    - kubernetes
-    - kubernetes-master
-    - kubernetes-scheduler
-  when: fleet_deployed == false

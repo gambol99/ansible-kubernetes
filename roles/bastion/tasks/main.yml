@@ -6,4 +6,18 @@
 #
 ---
 
+- file: path=/home/bastion/.ssh state=directory mode=0550
+
+- name: adding the bastion ssh keys
+  template: 
+    src: id_rsa.j2
+    dest: "/root/.ssh/{{ item.name }}"
+    mode: 0400
+  with_items: "{{ bastion_keys }}"
+
+- name: adding the bastion public ssh key
+  copy: 
+    src: files/bastion.pub
+    dest: /root/.ssh/id_rsa.pub
+    mode: 0400
 

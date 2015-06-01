@@ -17,7 +17,7 @@ EnvironmentFile=/etc/network-environment
 Restart=always
 RestartSec=10
 
-ExecStart={{ kubernetes_dir }}/bin/kube-apiserver \
+ExecStart={{ kubernetes_dir }}/bin/hyperkube apiserver \
   --cluster-name={{ kubernetes_cluster_name }} \
   --allow_privileged=true \
   --insecure_bind_address=0.0.0.0 \
@@ -35,6 +35,3 @@ ExecStart={{ kubernetes_dir }}/bin/kube-apiserver \
 {% endif %}
   --public_address_override=${PRIVATE_IP} \
   --logtostderr=true
-
-[X-Fleet]
-#MachineMetadata=role=kubernetes-master

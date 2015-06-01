@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-27 11:17:25 +0100 (Mon, 27 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+bastion_group: bastion_group 
+bastion_username: root

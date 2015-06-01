@@ -37,34 +37,30 @@ boxes:
     virtualbox:
       <<: *VIRTUALBOX_DEFAULT
       ip: 10.250.1.61
-  mesos101.sbx.example.com:
-    virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.101
-  mesos102.sbx.example.com:
-    virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.102
-  master101.sbx.example.com:
-    virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.200
-  minion101.sbx.example.com:
-    virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.201
-  minion102.sbx.example.com:
-    virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.202
-  mincore101.sbx.example.com:
+  core101.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.203
-  mincore102.sbx.example.com:
+      fleet:
+        kubernetes_role: minion
+  core102.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.204
+      fleet: 
+        kubernetes_role: minion
+  core103.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.205
+      fleet:
+        role: gluster 
+  core104.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.206
+      fleet:
+        role: gluster
   cache101.sbx.example.com:
     virtualbox:
       <<: *VIRTUALBOX_DEFAULT

@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-01 20:53:44 +0100 (Mon, 01 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes API Precence Service
+After=docker.service
+After=etcd.service
+BindsTo=kubernetes-api.service
+
+[Service]
+Restart=always
+RestartSec=10s
+
+EnvironmentFile=/etc/environment
+
+ExecStart=/bin/sh -c "while true; do etcdctl set /endpoints/kubernetes-api/instance '{ \"host\": \"%H\", \"ipaddress\": \"${PRIVATE_IP}\", \"port\": \"8080\" }' --ttl 300; sleep 10; done"
+ExecStop=/usr/bin/etcdctl delete /endpoints/kubernetes-api || true'
+
+[X-Fleet]
+MachineOf=kubernetes-api.service

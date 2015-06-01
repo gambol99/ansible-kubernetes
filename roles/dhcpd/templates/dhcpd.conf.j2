@@ -1,0 +1,26 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-30 00:35:43 +0100 (Sat, 30 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+{% for net in dhcpd.subnets %}
+subnet {{ net.network }} netmask {{ net.netmask }} {
+  option routers                  {{ net.router }};
+  option subnet-mask              {{ net.netmask }};
+  option domain-name              "{{ net.domain }}";
+  option domain-name-servers      {{ net.dns_servers | join(',') }};
+
+  range {{ net.range_start }} {{ net.range_end }};
+
+  {% for host in net.hosts %}
+host {{ host.name }} {
+    option host-name "{{ host.name }}";
+    hardware ethernet {{ host.mac }}; 
+    fixed-address {{ host.ip_address }};
+  }
+
+  {% endfor %}
+{% endfor %}
+}

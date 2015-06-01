@@ -16,6 +16,7 @@
   when: kubernetes_token_auth is defined
   
 - name: create the api fleet unit
+  delegate_to: "{{ fleet_delegation }}"
   template: 
     src:  kubernetes-api.service.j2
     dest: /config/kubernetes/kubernetes-api.service
@@ -23,39 +24,36 @@
     - kubernetes
     - kubernetes-master
     - kubernetes-api
-  when: fleet_deployed
 
 - name: starting the api service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  fleet: 
-    command: start
-    endpoint: "http://{{ fleet_endpoint }}:4001"
-    unit: /config/kubernetes/kubernetes-api.service
+  sudo: yes
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-api.service
   register: result
   tags: 
     - kubernetes
     - kubernetes-master
     - kubernetes-api
-  when: fleet_deployed
 
-- name: adding the kubernetes api service
+- name: create the api presence unit
+  delegate_to: "{{ fleet_delegation }}"
+  template: 
+    src:  kubernetes-api-presence.service.j2
+    dest: /config/kubernetes/kubernetes-api-presence.service
+  tags: 
+    - kubernetes
+    - kubernetes-api
+    - kubernetes-master
+    - kubernetes-api-presence
+
+- name: starting the api presence service via fleet
+  delegate_to: "{{ fleet_delegation }}"
   sudo: yes
-  template: src=kubernetes-api.service.j2 dest={{ systemd_dir }}/kubernetes-api.service 
-  notify:
-    - reload services
-    - restart kubernetes api
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-api-presence.service
+  register: result
   tags: 
     - kubernetes
-    - kubernetes-master
     - kubernetes-api
-  when: fleet_deployed == false
-
-- meta: flush_handlers
-
-- name: start the kubernetes api service
-  service: name=kubernetes-api state=started enabled=yes
-  tags: 
-    - kubernetes
     - kubernetes-master
-    - kubernetes-api
-  when: fleet_deployed == false
+    - kubernetes-api-presence
+    

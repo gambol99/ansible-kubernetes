@@ -1,0 +1,12 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-30 00:30:25 +0100 (Sat, 30 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: installed the dhcpd package
+  yum: name=dhcp state=present
+
+

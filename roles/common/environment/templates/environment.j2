@@ -5,9 +5,14 @@
 #  vim:ts=2:sw=2:et
 #
 
+{% if iface is defined %}
 PRIVATE_IP={{ hostvars[inventory_hostname]['ansible_'+iface].ipv4.address }}
+PRIMARY_INTERFACE={{ iface }}
+{% else %}
+PRIVATE_IP={{ ansible_default_ipv4.address }}
+PRIMARY_INTERFACE={{ ansible_default_ipv4.alias }}
+{% endif %}
 LOCATION={{ location }}
 ENVIRONMENT={{ environment }}
-PRIMARY_INTERFACE={{ iface }}
 GOMAXPROCS={{ ansible_processor_count }}
 CPUCORES={{ ansible_processor_count }}

@@ -1,0 +1,63 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-29 15:44:00 +0100 (Wed, 29 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: all
+  gather_facts: true
+  sudo: yes
+  tasks:
+    - include_vars: "vars/{{ location | mandatory }}.yml"
+    - include_vars: "vars/{{ location | mandatory }}.discovery.yml"
+    - include_vars: "../../vars/facts/os.yml"
+    - include: "../../vars/facts/main.yml"
+  roles:
+    - common/environment
+  tags: location
+
+- hosts: all
+  gather_facts: false
+  sudo: yes
+  roles:
+    - common/hosts
+    - common/resolver
+    - common/distro
+    - common/ntp
+    - common/bash
+    - common/ssh_keys
+    - common/configdir
+
+- hosts: bastion
+  gather_facts: false
+  roles:
+    - docker/engine
+    - docker/mirror
+    - fleet/client
+    - etcd/client
+    - kubernetes/client
+
+- hosts: glusterfs_servers
+  gather_facts: false
+  roles:
+    - glusterfs/server
+
+- hosts: kubernetes_master
+  gather_facts: false
+  sudo: yes
+  roles:
+    - docker/engine
+    - docker/mirror
+    - flannel/config
+    - flannel/flanneld
+    - kubernetes/master
+    - { role: kubernetes/gluster, when: "groups['glusterfs_servers']" }
+
+- hosts: kubernetes_minion
+  gather_facts: false
+  sudo: yes
+  roles:
+    - flannel/flanneld
+    - kubernetes/minion

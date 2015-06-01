@@ -16,12 +16,12 @@ EnvironmentFile=/etc/network-environment
 Restart=always
 RestartSec=10
 
-ExecStart={{ kubernetes_dir }}/bin/kubelet \
+ExecStart={{ kubernetes_dir }}/bin/hyperkube kubelet \
   --address=0.0.0.0 \
   --port=10250 \
   --hostname_override=${PRIVATE_IP} \
   --cluster-domain={{ dns_base }} \
-  --api_servers={{ kubernetes_master }}:8080 \
+  --api_servers=127.0.0.1:4343 \
   --allow_privileged=true \
   --logtostderr=true \
   --healthz_bind_address=0.0.0.0 \

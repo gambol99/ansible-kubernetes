@@ -4,3 +4,24 @@
 #
 #  vim:ts=2:sw=2:et
 #
+---
+
+- hosts: all 
+  gather_facts: false
+  tasks:
+    - include_vars: "../../vars/location/dev.yml"
+
+- hosts: bastion
+  gather_facts: false
+  vars:
+    hosts_template: templates/hosts.j2
+  roles:
+    - common/hosts
+
+- hosts: coreos
+  gather_facts: true
+  roles:
+    - coreos/ssh_update
+    - coreos/bootstrap
+    - coreos/cloudinit
+  tags: location

@@ -6,6 +6,8 @@
 #
 ---
 
+- file: path=/etc/profile.d state=directory mode=0775
+
 - name: bash profile
   template:
     src: "{{ item }}.sh.j2"

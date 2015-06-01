@@ -15,8 +15,6 @@ ff00::0     ip6-mcastprefix
 ff02::1     ip6-allnodes
 ff02::2     ip6-allrouters
 
-{{ hostvars[inventory_hostname]['ansible_'+iface].ipv4.address }}   {{ inventory_hostname }} {{ ansible_hostname }}
-
 {% for host in groups['all'] %}
-{{ hostvars[host]['ansible_'+hostvars[host]['ansible_env']['PRIMARY_INTERFACE']].ipv4.address }} {{ host }} # {{ hostvars[host].ansible_hostname }}
+{{ hostvars[host]['ansible_'+hostvars[host]['ansible_env']['PRIMARY_INTERFACE']].ipv4.address }} {{ host }}
 {% endfor %}

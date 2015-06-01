@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+#   Author: Rohith
+#   Date: 2015-05-30 00:25:20 +0100 (Sat, 30 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+IMAGE=gambol99/vcloud-tools
+FOG_CREDENTIALS=$HOME/.fog
+ROOT=${1:-$PWD}
+TAG=latest
+
+sudo docker run -ti --rm --net=host \ 
+  -v $ROOT:/root/ansible \
+  -v $FOG_CREDENTIALS/.fog:root/.fog \
+  /bin/bash

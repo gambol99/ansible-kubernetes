@@ -17,5 +17,6 @@
   tags:
     - docker-mirror
     - docker
+  when: groups[docker_mirror_group]
 
 - meta: flush_handlers

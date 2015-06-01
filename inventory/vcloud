@@ -28,10 +28,12 @@ module Ansible
       # step: generate the hostvars
       host_inventory.each do |x|
         hostvars[x] = {
-          'provider' => 'vcloud',
-          'location' => 'dev',
-          'iface'    => 'ens32',
+          'provider'   => 'vcloud',
+          'location'   => 'dev',
         }
+        if x =~ /^(core|mincore)/
+          hostvars[x]['ansible_python_interpreter'] = 'PATH=/home/core/bin:$PATH python'
+        end
       end
       pretty_print(inventory)
     end
@@ -50,6 +52,10 @@ module Ansible
       end
     end
 
+    def vapp(name, vdc_name = credentials['vdc'])
+      vdc(vdc_name).vapps.select { |x| x.name == name }.first
+    end
+
     def vdcs
       organization.vdcs.map { |x| x.name }
     end
@@ -58,7 +64,7 @@ module Ansible
       vdcs.include?(name)
     end
 
-    def vdc(name)
+    def vdc(name = credentials['vdc'])
       raise ArgumentError, "the vdc: #{name} does not exist" unless vdc?(name)
       organization.vdcs.select { |x| x.name = name }.first
     end

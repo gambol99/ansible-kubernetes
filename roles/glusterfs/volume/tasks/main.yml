@@ -58,6 +58,16 @@
   when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
   tags: gluster-volume
 
+- name: enable nfs support for the volume 
+  sudo: yes
+  shell: gluster volume {{ gluster-volume }} nfs.disable on 
+  when: gluster_nfs 
+
+- name: enable nfs support for the volume 
+  sudo: yes
+  shell: gluster volume {{ gluster-volume }} nfs.disable off
+  when: gluster_nfs == false
+
 ##- name: ensure bricks are clean
 ##  sudo: yes
 ##  shell: gluster volume info | grep -q $(hostname):{{gluster_bricks_dir}} || (setfattr -x trusted.glusterfs.volume-id {{gluster_bricks_base}};

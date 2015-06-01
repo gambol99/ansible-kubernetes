@@ -1,0 +1,48 @@
+#
+#   Author: Rohith
+#   Date: 2015-04-24 15:22:56 +0100 (Fri, 24 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+provider: vagrant
+environment: sandbox
+dns_zone: example.com
+dns_region: sbx
+managed_resolver: true
+dns_base: "{{ dns_region }}.{{ dns_zone }}"
+dns_ttl: 90
+dns_servers:
+  - 8.8.8.8
+  - 8.8.4.4
+
+timezone: UTC
+ntp_servers:
+  - 0.uk.pool.ntp.org
+  - 1.uk.pool.ntp.org
+  - 2.uk.pool.ntp.org
+  - 3.uk.pool.ntp.org
+
+### --- KUBERNETES ---- ####
+kubernetes_overlay_network: 10.90.0.0
+kubernetes_overlay_prefix: 16
+kubernetes_subnets: 24
+kubernetes_subnets_min: 10.90.1.0
+kubernetes_subnets_max: 10.90.50.0
+kubernetes_backend: udp
+kubernetes_master_group: kubernetes_master
+kubernetes_minion_group: kubernetes_minion
+kubernetes_etcd_group: kubernetes_minion
+
+flannel_overlay_network: "{{ kubernetes_overlay_network }}"
+flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
+flannel_subnets: "{{ kubernetes_subnets }}"
+flannel_subnets_min: "{{ kubernetes_subnets_min }}"
+flannel_subnets_max: "{{ kubernetes_subnets_max }}"
+flannel_etcd_group: kubernetes_minion
+flannel_config_group: kubernetes_minion
+
+fleet_deployed: true
+fleet_delegation: "core101.{{ dns_base }}"
+fleet_endpoints: "{% for host in groups[kubernetes_minion_group] %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %}"

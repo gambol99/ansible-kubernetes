@@ -9,12 +9,14 @@
 - hosts: "{{ hostname }}"
   gather_facts: false
   roles:
-    - { role: coreos, when: is_coreos }
+    - { role: coreos/bootstrap, when: is_coreos }
 
 - hosts: "{{ hostname }}"
+  gather_facts: true
   tasks:
-    - include_vars: "vars/os.yml"
+    - include_vars: "vars/facts/os.yml"
 
 - hosts: "{{ hostname }}"
+  gather_facts: false
   roles:
     - vagrant

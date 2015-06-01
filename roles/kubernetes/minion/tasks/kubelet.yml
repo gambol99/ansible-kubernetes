@@ -7,6 +7,7 @@
 ---
 
 - name: create the kubelet fleet unit
+  delegate_to: "{{ fleet_delegation }}"
   template: 
     src:  kubernetes-kubelet.service.j2
     dest: /config/kubernetes/kubernetes-kubelet.service
@@ -14,36 +15,12 @@
     - kubernetes
     - kubernetes-minion
     - kubernetes-kubelet
-  when: fleet_deployed
 
 - name: starting the kubelet service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  fleet: 
-    command: start
-    endpoint: "http://{{ kubernetes_master_hostname }}:4001"
-    unit: /config/kubernetes/kubernetes-kubelet.service
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-kubelet.service
   register: result
   tags: 
     - kubernetes
     - kubernetes-minion
     - kubernetes-kubelet
-  when: fleet_deployed
-
-- name: adding the kubernetes kubelet service
-  template: src=kubernetes-kubelet.service.j2 dest={{ systemd_dir }}/kubernetes-kubelet.service 
-  notify: 
-    - reload services
-    - restart kubernetes kubelet
-  tags: 
-    - kubernetes
-    - kubernetes-minion
-    - kubernetes-kubelet
-  when: fleet_deployed == false
-
-- name: start the kubernetes kubelet service
-  service: name=kubernetes-kubelet state=started enabled=yes
-  tags: 
-    - kubernetes
-    - kubernetes-minion
-    - kubernetes-kubelet
-  when: fleet_deployed == false

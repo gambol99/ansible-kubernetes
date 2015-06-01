@@ -1,12 +1,13 @@
 #
 #   Author: Rohith
-#   Date: 2015-05-03 15:29:02 +0100 (Sun, 03 May 2015)
+#   Date: 2015-06-01 20:27:16 +0100 (Mon, 01 Jun 2015)
 #
 #  vim:ts=2:sw=2:et
 #
 ---
 
-- name: create the kubelet fleet unit
+- name: create the kubelet proxy fleet unit
+  delegate_to: "{{ fleet_delegation }}"
   template: 
     src:  kubernetes-proxy.service.j2
     dest: /config/kubernetes/kubernetes-proxy.service
@@ -14,36 +15,14 @@
     - kubernetes
     - kubernetes-minion
     - kubernetes-proxy
-  when: fleet_deployed
 
-- name: starting the kubelet service via fleet
+- name: starting the kubelet proxy via fleet
   delegate_to: "{{ fleet_delegation }}"
-  fleet: 
-    command: start
-    endpoint: "http://{{ fleet_endpoint }}:4001"
-    unit: /config/kubernetes/kubernetes-proxy.service
+  sudo: yes
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-proxy.service
   register: result
   tags: 
     - kubernetes
     - kubernetes-minion
     - kubernetes-proxy
-  when: fleet_deployed
 
-- name: adding the kubernetes proxy service
-  template: src=kubernetes-proxy.service.j2 dest={{ systemd_dir }}/kubernetes-proxy.service 
-  notify: 
-    - reload services
-    - restart kubernetes proxy 
-  tags: 
-    - kubernetes
-    - kubernetes-minion
-    - kubernetes-proxy
-  when: fleet_deployed == false
-
-- name: start the kubernetes proxy service
-  service: name=kubernetes-proxy state=started enabled=yes
-  tags: 
-    - kubernetes
-    - kubernetes-minion
-    - kubernetes-proxy
-  when: fleet_deployed == false

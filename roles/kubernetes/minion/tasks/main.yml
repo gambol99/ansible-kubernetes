@@ -6,8 +6,6 @@
 #
 ---
 
-- include: iptables.yml
-  when: is_centos or is_ubuntu
-
+- include: router.yml
 - include: proxy.yml
 - include: kubelet.yml

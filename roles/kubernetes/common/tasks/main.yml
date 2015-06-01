@@ -6,7 +6,7 @@
 #
 ---
 
-- name: getting the kubernetes config directory
+- name: creating the kubernetes config directory
   file: path=/config/kubernetes state=directory mode=0550
   tags: 
     - kubernetes
@@ -17,10 +17,11 @@
   tags: 
     - kubernetes
     - kubernetes-common
-
 - name: setting the kubernetes facts
   set_fact:
-    kubernetes_master: "{{ kubernetes_master_ip }}"
+    kubernetes_master: "{{ kubernetes_master_name }}"
+    kubernetes_master_ip: "{{ kubernetes_master_ipaddress }}"
+    kubernetes_master_endpoint: "http://{{ kubernetes_master }}:8080"
     kubernetes_dir: "{{ kubernetes_dir }}"
   tags: 
     - kubernetes

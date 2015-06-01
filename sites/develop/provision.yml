@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-25 10:42:19 +0100 (Mon, 25 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: checking for a discovery token
+      stat: path="vars/{{ location }}.discovery.yml"
+      register: has_discovery
+
+    - name: retrieve a discovery token from etcd service
+      uri: url=https://discovery.etcd.io/new status_code=200 follow_redirects=yes return_content=true
+      register: discovery_response
+      when: has_discovery.stat.exists == false
+
+    - name: saving the discovery token to file
+      copy: content="etcd_discovery_token{{':'}} {{ discovery_response.content }}" dest=vars/{{ location }}.discovery.yml
+      when: has_discovery.stat.exists == false
+    

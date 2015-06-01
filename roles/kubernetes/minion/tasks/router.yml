@@ -1,0 +1,27 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-01 20:28:04 +0100 (Mon, 01 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the kube-register fleet unit
+  delegate_to: "{{ fleet_delegation }}"
+  sudo: yes
+  template: 
+    src:  kubernetes-router.service.j2
+    dest: /config/kubernetes/kubernetes-router.service
+  tags: 
+    - kubernetes
+    - kubernetes-minion
+    - kubernetes-router
+
+- name: starting the kubernetes-router via fleet
+  delegate_to: "{{ fleet_delegation }}"
+  sudo: yes
+  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-router.service
+  tags: 
+    - kubernetes
+    - kubernetes-minion
+    - kubernetes-router

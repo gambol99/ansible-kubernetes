@@ -9,88 +9,20 @@
 - hosts: localhost
   gather_facts: false
   tasks:
-    - include_vars: "vars/location/sbx.yml"
-    - include_vars: "vars/os.yml"
-  tags: location  
+    - name: checking for a discovery token
+      stat: path="vars/sbx.discovery.yml"
+      register: has_discovery
 
-- hosts: all
-  sudo: yes
-    - include: "vars/facts/main.yml"
-  roles:
-    - common/environment
-  tags: location
+    - name: retrieve a discovery token from etcd service
+      uri: url=https://discovery.etcd.io/new status_code=200 follow_redirects=yes return_content=true
+      register: discovery_response
+      when: has_discovery.stat.exists == false
 
-- hosts: all
-  gather_facts: false
-  sudo: yes
-  roles:
-    - common/hosts
-    - common/resolver
-    - common/distro
-    - common/ntp
-    - common/bash
-    - common/ssh_keys
-    - configdir
-
-- hosts: docker-cache
-  gather_facts: false
-  sudo: yes
-  roles:
-    - docker/engine
-    - docker/cache
-
-- hosts: glusterfs_servers
-  gather_facts: false
-  vars:
-    gluster_server_group: glusterfs_servers
-  roles:
-    - glusterfs/server
-
-- hosts:
-    - kubernetes_master
-    - kubernetes_minion
-  gather_facts: false
-  sudo: yes
-  roles:
-    - docker/engine
-    - { role: docker/mirror, when: "groups['docker-cache']" }
-
-- hosts: etcd_servers
-  gather_facts: false
-  sudo: yes
-  vars:
-    etcd_dockerized: false
-  roles:
-    - etcd
-
-- hosts: kubernetes_master
-  gather_facts: false
-  sudo: yes
-  vars:
-    flannel_overlay_network: "{{ kubernetes_overlay_network }}"
-    flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
-    flannel_subnets: "{{ kubernetes_subnets }}"
-    flannel_subnets_min: "{{ kubernetes_subnets_min }}"
-    flannel_subnets_max: "{{ kubernetes_subnets_max }}"
-    flannel_backend: "{{ kubernetes_backend }}"
-  roles:
-    - flannel/config
-    - flannel/flanneld
-    - kubernetes/master
-    - { role: kubernetes/gluster, when: "groups['glusterfs_servers']" }
-
-- hosts: kubernetes_minion
-  gather_facts: false
-  sudo: yes
-  vars:
-    flannel_overlay_network: "{{ kubernetes_overlay_network }}"
-    flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
-    flannel_config_group: etcd_servers
-    gluster_server_group: glusterfs_servers
-    gluster_mounted_volumes: []
-  roles:
-    - flannel/flanneld
-    - kubernetes/minion
-    - gateway/http_router
-    - { role: glusterfs/client, when: "groups['glusterfs_servers']" }
-
+    - name: saving the discovery token to file
+      copy: content="etcd_discovery_token{{':'}} {{ discovery_response.content }}" dest=vars/sbx.discovery.yml
+      when: has_discovery.stat.exists == false
+    
+    - name: bringing up the vagrant environment
+      shell: make -C ../../ kcore
+      async: 3000
+      poll: 0

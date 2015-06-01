@@ -1,0 +1,31 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-01 20:28:38 +0100 (Mon, 01 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes Router Service
+Documentation=https://github.com/gambol99/embassy
+Requires=fleet.service
+After=fleet.service
+
+[Service]
+Restart=always
+RestartSec=10
+
+ExecStartPre=/bin/mkdir -p /opt/bin
+ExecStartPre=/bin/wget -q {{ kubernetes_router_release }} -O /opt/bin/embassy.gz 
+ExecStartPre=/bin/gunzip /opt/bin/embassy.gz 
+ExecStartPre=/usr/bin/chmod +x /opt/bin/embassy
+ExecStart=/opt/bin/embassy \
+  -provider=static \
+  -interface=lo \
+  -port=4343 \
+  -discovery=etcd://${PRIVATE_IP}:4001 \
+  -services='/endpoints/kubernetes-api;4343' \
+  -logtostderr=true -v=3
+
+[X-Fleet]
+Global=true

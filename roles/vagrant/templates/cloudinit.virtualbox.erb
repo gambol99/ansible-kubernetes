@@ -50,6 +50,7 @@ coreos:
     <%- end -%>
   fleet:
     public-ip: \$private_ipv4
+    metadata: public_ip=\$private_ipv4,location=sbx,role=kubernetes,minion=true,master=true,host=<%= @hostname.gsub(/[0-9]*/,'') %>,<%= @fleet.map { |k,v| "#{k}=#{v}" }.join(',') %>
   units:
     - name: etcd.service
       command: start

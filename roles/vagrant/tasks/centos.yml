@@ -7,9 +7,7 @@
 ---
 
 - name: install the package dependencies
-  yum:
-    name: '{{ item }}'
-    state: present
+  yum: name="{{ item }}" state=present
   with_items:
     - nc
 

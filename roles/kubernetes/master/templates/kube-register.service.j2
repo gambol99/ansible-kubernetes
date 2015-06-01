@@ -1,0 +1,29 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-03 13:04:55 +0100 (Sun, 03 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Kubernetes Registration Service
+Documentation=https://github.com/kelseyhightower/kube-register
+Requires=fleet.service
+After=fleet.service
+
+[Service]
+Restart=always
+RestartSec=10
+
+EnvironmentFile=/etc/environment
+ExecStartPre=/bin/mkdir -p /opt/bin
+ExecStartPre=/bin/wget -q https://github.com/kelseyhightower/kube-register/releases/download/v0.0.4/kube-register-0.0.4-linux-amd64 -O /opt/bin/kube-register 
+ExecStartPre=/usr/bin/chmod +x /opt/bin/kube-register
+ExecStart=/opt/bin/kube-register \
+  --metadata=role=kubernetes \
+  --fleet-endpoint=unix:///var/run/fleet.sock \
+  --api-endpoint=http://127.0.0.1:8080 \
+  --healthz-port=10255
+
+[X-Fleet]
+MachineOf=kubernetes-api.service

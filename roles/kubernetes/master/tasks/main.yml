@@ -7,8 +7,6 @@
 ---
 
 - include: api.yml
+- include: register.yml
 - include: controller.yml
 - include: scheduler.yml
-
-- include: centos.yml
-  when: is_centos

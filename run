@@ -1,0 +1,63 @@
+#!/bin/bash 
+#
+#   Author: Rohith
+#   Date: 2015-05-28 22:42:59 +0100 (Thu, 28 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+usage() {
+  cat << EOF
+  Usage: $(basename $0) -s|--site SITE_NAME -p PLAYBOOK_FILE
+    -s|--site SITE_NAME     : the name of the of site to run configuration on 
+    -i|--inventory NAME     : the inventory to use for this play
+    -p|--play FILENAME      : the filename of the playbook to run 
+    -t|--tags TAGS          : a comma separated list of tags to run 
+    -h|--help               : this usage menu
+EOF
+  [ -n "$@" ] && {
+    echo "error: $@";
+    exit 1;
+  } 
+  exit 0
+}
+
+annonce() {
+  [ -n "$@" ] || echo "** $@"
+}
+
+# step: process the command line arguments
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -s|--site)      SITE=$2;      shift 2   ;;
+    -i|--inventory) INVENTORY=$2; shift 2   ;;
+    -p|--play)      PLAY=$2;      shift 2   ;;
+    -t|--tags)      TAGS=$2;      shift 2   ;;
+    -h|--help)      usage                   ;;
+    *)              ARGS="$ARGS $1"       
+                    shift 1                 ;;
+  esac
+done
+
+# step: set some default
+SITE=${SITE:-sbx}
+INVENTORY=${INVENTORY:-vagrant}
+PLAY=${PLAY:-configure.yml}
+TAGS=${TAGS:-""}
+
+[ -z "$SITE" ] && usage "you have not specified a site"
+[ -z "$PLAY" ] && usage "you have not selected a playbook to run"
+[ -z "$INVENTORY" ] && usage "you have not specified any inventory"
+
+[ -d "sites/${SITE}" ]          || usage "the site: $SITE does not exist"
+[ -f "inventory/${INVENTORY}" ] || usage "the inventory: ${INVENTORY} does not exist"
+[ -f "sites/${SITE}/${PLAY}" ]  || usage "the playbook: $PLAY does not exist under site: $SITE"
+
+[ -n "$TAGS" ] && TAGS="-t location,${TAGS}"
+
+export ANSIBLE_CONFIG=./ansible.cfg
+export ANSIBLE_LIBRARY=library/
+export ANSIBLE_ROLES_PATH=roles/
+annonce "Running Playbook: $PLAY, site: $SITE"
+
+time ansible-playbook -i inventory/${INVENTORY} -e location=${SITE} sites/${SITE}/${PLAY} $TAGS $ARGS

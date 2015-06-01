@@ -4,4 +4,6 @@
 #
 #  vim:ts=2:sw=2:et
 #
+---
 
+kubernetes_router_release: https://drone.io/github.com/gambol99/embassy/files/embassy.gz

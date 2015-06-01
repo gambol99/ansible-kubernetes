@@ -12,6 +12,7 @@ usage() {
     -e|--env NAME           the environment / location to deploy to
     -v|--volume NAME        the name of the glusterfs volume to create
     -r|--replica NUMBER     the number of replicas to create  
+    -n|--nfs                enable nfs support for the volume
     -h|--help               display this usage menu
 EOF
   [ -n "$@" ] || {

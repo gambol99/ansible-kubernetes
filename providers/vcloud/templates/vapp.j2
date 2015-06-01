@@ -1,0 +1,24 @@
+#
+#   Author: Rohith
+#   Date: 2015-05-06 10:51:26 +0100 (Wed, 06 May 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+vapps:
+  - name: {{ vapp_name }}
+    vdc_name: {{ vdc_name }}
+    catalog_name: {{ catalog_name }}
+    vapp_template_name: {{ vapp_template_name}}
+
+    vm:
+      hardware_config:
+        memory: {{ vapp_memory }}
+        cpu: {{ vapp_cpu }}
+      {% if vapp.bootstrap is defined %}
+      bootstrap:
+        script_path: {{ vapp_boostrap }}
+      {% endif %}
+
+

@@ -18,10 +18,9 @@ EnvironmentFile=/etc/network-environment
 Restart=always
 RestartSec=10
 
-ExecStart={{ kubernetes_dir }}/bin/kube-controller-manager \
+ExecStart={{ kubernetes_dir }}/bin/hyperkube controller-manager \
   --cluster-name={{ kubernetes_cluster_name }} \
-  --master={{ kubernetes_master }}:8080 \
-  --machines={{ kubernetes_minion_servers }} \
+  --master={{ kubernetes_master_ip }}:8080 \
   --logtostderr=true
 
 [X-Fleet]

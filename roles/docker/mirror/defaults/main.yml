@@ -9,3 +9,4 @@
 docker_mirror_name: docker-mirror
 docker_mirror_image: nginx
 docker_mirror_tag: latest
+docker_mirror_group: docker-cache

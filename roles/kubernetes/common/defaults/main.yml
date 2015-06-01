@@ -6,14 +6,12 @@
 #
 ---
 
-kubernetes_version: 0.16.1
-kubernetes_release: "https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64"
 kubernetes_cluster_name: "kube-{{ location }}"
 kubernetes_dir: /opt/kubernetes
-kubernetes_master_hostname: "{{ groups['kubernetes_master'][0] }}"
-kubernetes_master_ip: "{{ hostvars[kubernetes_master_hostname].ansible_env['PRIVATE_IP'] }}"
+#kubernetes_master_name: "{{ groups['kubernetes_master'][0] }}"
+#kubernetes_master_ipaddress: "{{ hostvars[kubernetes_master_hostname].ansible_env['PRIVATE_IP'] }}"
+kubernetes_master_group: kubernetes_master
 kubernetes_minion_group: kubernetes_minion
-kubernetes_minion_servers: "{% for host in groups[kubernetes_minion_group] %}{{ hostvars[host].ansible_env['PRIVATE_IP'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 ## - Networking - ##
 fleet_delegation: "{{ kubernetes_master_hostname }}"

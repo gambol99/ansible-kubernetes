@@ -13,7 +13,7 @@ require 'erb'
 
 VAGRANT_DEFAULT_PROVIDER = 'virtualbox'
 ENVIRONMENT_CONFIG       = "./config.yml"
-ETCD_DISCOVERY_TOKEN     = "./vars/location/sbx.discovery.yml"
+ETCD_DISCOVERY_TOKEN     = "./sites/sbx/vars/sbx.discovery.yml"
 
 def boxes
   require ArgumentError, "unable to find the vagrant config" unless File.exist?(ENVIRONMENT_CONFIG)
@@ -52,6 +52,7 @@ Vagrant.configure(2) do |config|
     if is_coreos
       # step: do we need a discovery token
       @discovery = discovery_token
+      @fleet     = host['fleet'] || {}
       cloudinit  = ERB.new(File.read(vbox['cloudinit']), nil, '-' ).result( binding ) if is_coreos
     end
 

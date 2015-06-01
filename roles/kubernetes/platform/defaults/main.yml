@@ -7,11 +7,5 @@
 ---
 
 kubernetes_binaries:
-  - kube-apiserver
-  - kube-controller-manager
+  - hyperkube
   - kubectl
-  - kubelet
-  - kube-proxy
-  - kubernetes
-  - kube-scheduler
-

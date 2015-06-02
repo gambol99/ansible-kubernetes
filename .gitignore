@@ -10,6 +10,10 @@
 *.cache
 .vagrant/
 .aws
-sites/dev
+.vault
 .credentials.yml
-vars/location/sbx.discovery.yml
+sbx.discovery.yml
+sites/sbx/vars/sbx.discovery.yml
+sites/develop/vars/develop.discovery.yml
+sites/dev
+roles/services

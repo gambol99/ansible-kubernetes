@@ -36,4 +36,4 @@ done
 [ -z "$VOLUME"   ] && usage "you have not specified a volume name"
 [ -z "$REPLICAS" ] && usage "you have not specified a replica number"
 
-ansible-playbook -i inventory/${ENVIR} -e volume=${VOLUME} -e replica=${REPLICAS} playbooks/procedures/create-gluster-volume.yml
+ansible-playbook -i inventory/${ENVIR} -e volume=${VOLUME} -e replicas=${REPLICAS} playbooks/procedures/create-gluster-volume.yml

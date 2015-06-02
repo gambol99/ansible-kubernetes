@@ -8,8 +8,8 @@
 
 - hosts: "{{ hostlist | default('glusterfs_servers') }}"
   tasks:
-    - include_vars: "../../vars/os.yml"
-    - include_vars: "../../vars/location/{{ location | mandatory }}.yml"
+    - include_vars: "../../vars/facts/os.yml"
+    - include_vars: "../../sites/{{ location | mandatory }}/vars/{{ location }}.yml"
 
 - hosts: "{{ hostlist | default('glusterfs_servers') }}"
   vars:

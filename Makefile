@@ -31,7 +31,7 @@ sbx:
 	vagrant up /bastion101/
 	vagrant up /core101/
 	vagrant up /core102/
-	vagrant up /gluster/ 
+	vagrant up /gluster101/ 
 	make sbx-play
 
 sbx-play:

@@ -8,5 +8,5 @@
 
 gluster_server_group: glusterfs_servers
 gluster_brick_base: /srv/gluster
-gluster_nfs: false
+gluster_nfs: true
 

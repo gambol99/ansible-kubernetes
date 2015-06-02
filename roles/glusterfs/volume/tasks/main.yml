@@ -60,12 +60,17 @@
 
 - name: enable nfs support for the volume 
   sudo: yes
-  shell: gluster volume {{ gluster-volume }} nfs.disable on 
+  shell: 'gluster volume set {{ gluster_volume }} nfs.disable off && gluster volume set {{ gluster_volume }} nfs.mount-udp true || true'
   when: gluster_nfs 
 
 - name: enable nfs support for the volume 
   sudo: yes
-  shell: gluster volume {{ gluster-volume }} nfs.disable off
+  shell: 'gluster volume set {{ gluster_volume }} nfs.disable off && gluster volume set test nfs.mount-udp false || true'
+  when: gluster_nfs 
+
+- name: enable nfs support for the volume 
+  sudo: yes
+  shell: 'gluster volume set {{ gluster_volume }} nfs.disable on || true'
   when: gluster_nfs == false
 
 ##- name: ensure bricks are clean
@@ -75,7 +80,7 @@
 ##        rm -rf {{gluster_bricks_base}}/.glusterfs)
 ##  tags: gluster-volume
 #
-- name: start default volume
+- name: start up in the volume
   sudo: yes
   shell: 'gluster volume info {{ gluster_volume }} | grep "Status: Started" || gluster volume start {{ gluster_volume }}'
   when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"

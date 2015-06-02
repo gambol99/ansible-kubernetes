@@ -7,6 +7,7 @@
 ---
 
 - name: create the kubelet fleet unit
+  run_once: true
   delegate_to: "{{ fleet_delegation }}"
   template: 
     src:  kubernetes-kubelet.service.j2
@@ -17,6 +18,7 @@
     - kubernetes-kubelet
 
 - name: starting the kubelet service via fleet
+  run_once: true
   delegate_to: "{{ fleet_delegation }}"
   shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-kubelet.service
   register: result

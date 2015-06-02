@@ -7,3 +7,4 @@
 ---
 
 kubernetes_token_filename: tokens.csv
+kubernetes_kube_register_release: https://drone.io/github.com/gambol99/kube-register/files/kube-register.gz

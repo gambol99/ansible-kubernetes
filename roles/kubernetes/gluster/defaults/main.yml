@@ -6,5 +6,7 @@
 #
 ---
 
+kubernetes_gluster_nfs_support: true
+kubernetes_gluster_endpoints: false
 kubernetes_gluster_name: glusterfs-cluster
 kubernetes_gluster_group: glusterfs_servers

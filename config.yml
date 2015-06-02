@@ -4,6 +4,7 @@
 #
 #  vim:ts=2:sw=2:et
 #
+---
 
 default_virtualbox: &VIRTUALBOX_DEFAULT
   box: 'puppetlabs/centos-7.0-64-nocm'
@@ -15,9 +16,9 @@ default_virtualbox: &VIRTUALBOX_DEFAULT
     biosbootmenu: disabled
 
 default_coreos_virtualbox: &COREOSBOX_DEFAULT
-  box: "coreos-stable"
-  url: "http://stable.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
-  cloudinit: 'roles/vagrant/templates/cloudinit.virtualbox.erb'
+  box: "coreos-alpha"
+  url: "http://alpha.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
+  cloudinit: 'roles/vagrant/templates/cloudinit.coreos.virtualbox.erb'
   gui: false
   resources:
     cpus: 2
@@ -49,18 +50,6 @@ boxes:
       ip: 10.250.1.204
       fleet: 
         kubernetes_role: minion
-  core103.sbx.example.com:
-    virtualbox:
-      <<: *COREOSBOX_DEFAULT
-      ip: 10.250.1.205
-      fleet:
-        role: gluster 
-  core104.sbx.example.com:
-    virtualbox:
-      <<: *COREOSBOX_DEFAULT
-      ip: 10.250.1.206
-      fleet:
-        role: gluster
   cache101.sbx.example.com:
     virtualbox:
       <<: *VIRTUALBOX_DEFAULT

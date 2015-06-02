@@ -6,21 +6,38 @@
 #
 ---
 
+- name: adding nfs rpc.stats service
+  delegate_to: "{{ fleet_delegation }}"
+  template: 
+    src:  rpc.statd.service.j2
+    dest: /config/kubernetes/rpc.statd.service
+  when: kubernetes_gluster_nfs_support
+  register: rpc
+  tags: gluster
+
+- name: deploying the rpc.statd service via fleet
+  delegate_to: "{{ fleet_delegation }}"
+  shell: fleetctl --endpoint={{ fleet_endpoints }} start /config/kubernetes/rpc.statd.service
+  tags: gluster
+  when: kubernetes_gluster_nfs_support and rpc.changed
+
 - name: generate the glusterfs endpoints into kubernetes
+  delegate_to: "core101.{{ dns_base }}"
   sudo: yes
   template:
     src: endpoints.json.j2
     dest: /config/kubernetes/endpoints.json
   register: endpoints_changed
-  tags:
-    - gluster
+  tags: gluster
+  when: kubernetes_gluster_endpoints
 
-## @@TODO probably wanna allow for multiple endpoints 
+## @@TODO - this is temporar until i place the proxy on the bastion and route through
 - name: inject the gluster endpoints into kubernetes
+  delegate_to: "core101.{{ dns_base }}"
   sudo: yes
   shell: |
-    {{ kubernetes_dir }}/bin/kubectl get endpoint {{ kubernetes_gluster_name }} >/dev/null || {{ kubernetes_dir }}/bin/kubectl create -f /config/kubernetes/endpoints.json &&
-    {{ kubernetes_dir }}/bin/kubectl update -f /config/kubernetes/endpoints.json
-  when: endpoints_changed | changed
-  tags:
-    - gluster
+    {{ kubernetes_dir }}/bin/kubectl -s 127.0.0.1:4343 get endpoint {{ kubernetes_gluster_name }} >/dev/null || {{ kubernetes_dir }}/bin/kubectl -s 127.0.0.1:4343 create -f /config/kubernetes/endpoints.json &&
+    {{ kubernetes_dir }}/bin/kubectl -s 127.0.0.1:4343 update -f /config/kubernetes/endpoints.json
+  when: endpoints_changed.changed
+  tags: gluster
+

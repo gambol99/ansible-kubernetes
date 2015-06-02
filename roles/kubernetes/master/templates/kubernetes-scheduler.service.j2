@@ -18,7 +18,7 @@ Restart=always
 RestartSec=10
 
 ExecStart={{ kubernetes_dir }}/bin/hyperkube scheduler \
-  --master={{ kubernetes_master }}:8080
+  --master=127.0.0.1:4343
 
 [X-Fleet]
 MachineOf=kubernetes-api.service

@@ -17,13 +17,15 @@ RestartSec=10
 
 EnvironmentFile=/etc/environment
 ExecStartPre=/bin/mkdir -p /opt/bin
-ExecStartPre=/bin/wget -q https://github.com/kelseyhightower/kube-register/releases/download/v0.0.4/kube-register-0.0.4-linux-amd64 -O /opt/bin/kube-register 
+ExecStartPre=/bin/wget -q {{ kubernetes_kube_register_release }} -O /opt/bin/kube-register.gz 
+ExecStartPre=/bin/gunzip /opt/bin/kube-register.gz
 ExecStartPre=/usr/bin/chmod +x /opt/bin/kube-register
 ExecStart=/opt/bin/kube-register \
-  --metadata=role=kubernetes \
-  --fleet-endpoint=unix:///var/run/fleet.sock \
-  --api-endpoint=http://127.0.0.1:8080 \
-  --healthz-port=10255
+  -metadata=role=kubernetes \
+  -fleet-endpoint=unix:///var/run/fleet.sock \
+  -api-endpoint=http://127.0.0.1:4343 \
+  -healthz-port=10255 \
+  -node-labels=true
 
 [X-Fleet]
 MachineOf=kubernetes-api.service

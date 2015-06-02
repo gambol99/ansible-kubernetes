@@ -7,7 +7,7 @@
 FROM centos:centos7
 MAINTAINER Rohith Jayawardene <gambol99@gmail.com>
 
-RUN yum install -y ruby ruby-devel patch rubygems rubygem-httparty.noarch tar make gcc libxml2-devel vim
+RUN yum install -y ruby ruby-devel patch rubygems rubygem-httparty.noarch tar make gcc libxml2-devel
 RUN gem install -V vcloud-tools -v 1.0.0
 RUN gem install -V optionscrapper
 RUN yum install -y ansible

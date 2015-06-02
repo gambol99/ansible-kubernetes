@@ -10,5 +10,6 @@
 *.cache
 .vagrant/
 .aws
+sites/dev
 .credentials.yml
 vars/location/sbx.discovery.yml

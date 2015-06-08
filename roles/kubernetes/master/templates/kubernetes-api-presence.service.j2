@@ -17,7 +17,7 @@ RestartSec=10s
 
 EnvironmentFile=/etc/environment
 
-ExecStart=/bin/sh -c "while true; do etcdctl set /endpoints/kubernetes-api/instance '{ \"host\": \"%H\", \"ipaddress\": \"${PRIVATE_IP}\", \"port\": \"8080\" }' --ttl 300; sleep 10; done"
+ExecStart=/bin/sh -c "while true; do etcdctl set /endpoints/kubernetes-api/instance '{ \"host\": \"%H\", \"ipaddress\": \"${COREOS_PRIVATE_IPV4}\", \"port\": \"8080\" }' --ttl 300; sleep 10; done"
 ExecStop=/usr/bin/etcdctl delete /endpoints/kubernetes-api || true'
 
 [X-Fleet]

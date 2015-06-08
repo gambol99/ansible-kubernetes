@@ -8,6 +8,7 @@
 
 - name: create the kube-register fleet unit
   delegate_to: "{{ fleet_delegation }}"
+  run_once: true
   template: 
     src:  kube-register.service.j2
     dest: /config/kubernetes/kube-register.service
@@ -18,8 +19,8 @@
 
 - name: starting the kube-register via fleet
   delegate_to: "{{ fleet_delegation }}"
-  sudo: yes
-  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kube-register.service
+  run_once: true
+  shell: fleetctl start /config/kubernetes/kube-register.service
   tags: 
     - kubernetes
     - kubernetes-minion

@@ -11,7 +11,6 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 EnvironmentFile=/etc/environment
-EnvironmentFile=/etc/network-environment
 Restart=always
 RestartSec=10
 
@@ -20,4 +19,5 @@ ExecStart={{ kubernetes_dir }}/bin/hyperkube proxy \
   --logtostderr=true
 
 [X-Fleet]
+MachineMetadata=host=core
 Global=true

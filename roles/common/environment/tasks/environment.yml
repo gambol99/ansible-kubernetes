@@ -8,6 +8,4 @@
 
 - name: adding the environment file
   template: src=environment.j2 dest=/etc/environment mode=0444
-  tags: 
-    - common
-    - environment
+  tags: environment

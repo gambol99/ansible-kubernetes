@@ -13,7 +13,7 @@
     name: "{{ vdc }}"
     orgainisation: "{{ organisation }}"
     state: present
-    
+
 - name: "create the virtual networks for {{ location }}"
   vcloud_network:
     vdc: "{{ vdc }}"
@@ -28,5 +28,3 @@
     ip_pool_end: "{{ item.end_range }}"
     state: "{{ item.state }}"
   with_item: "{{ networks }}"
-  
-  

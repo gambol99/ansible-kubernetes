@@ -6,5 +6,4 @@
 #
 ---
 
-- include: environment.yml
-- include: network.yml
+#- include: environment.yml

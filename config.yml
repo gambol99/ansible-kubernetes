@@ -26,30 +26,35 @@ default_coreos_virtualbox: &COREOSBOX_DEFAULT
     biosbootmenu: disabled
 
 boxes:
-  gluster101.sbx.example.com:
+  store101.sbx.example.com:
     virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.51
-  gluster102.sbx.example.com:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.53
+  store102.sbx.example.com:
     virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
-      ip: 10.250.1.52
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.54
   bastion101.sbx.example.com:
     virtualbox:
-      <<: *VIRTUALBOX_DEFAULT
+      <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.61
+    fleet:
+      kubernetes: true
+      role: bastion
   core101.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.203
-      fleet:
-        kubernetes_role: minion
+    fleet:
+      kubernetes: true
+      role: minion
   core102.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.204
-      fleet: 
-        kubernetes_role: minion
+    fleet:
+      kubernetes: true
+      role: minion
   cache101.sbx.example.com:
     virtualbox:
       <<: *VIRTUALBOX_DEFAULT

@@ -7,5 +7,4 @@
 ---
 
 kubernetes_binaries:
-  - hyperkube
   - kubectl

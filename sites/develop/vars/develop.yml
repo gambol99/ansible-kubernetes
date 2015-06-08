@@ -16,33 +16,26 @@ dns_ttl: 90
 dns_servers:
   - 8.8.8.8
   - 8.8.4.4
-
 timezone: UTC
-ntp_servers:
-  - 0.uk.pool.ntp.org
-  - 1.uk.pool.ntp.org
-  - 2.uk.pool.ntp.org
-  - 3.uk.pool.ntp.org
 
 ### --- KUBERNETES ---- ####
-kubernetes_overlay_network: 10.90.0.0
+kubernetes_version: 0.16.1
+kubernetes_release: "https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64"
+kubernetes_overlay_network: 10.99.0.0
 kubernetes_overlay_prefix: 16
 kubernetes_subnets: 24
-kubernetes_subnets_min: 10.90.1.0
-kubernetes_subnets_max: 10.90.50.0
+kubernetes_subnets_min: 10.99.1.0
+kubernetes_subnets_max: 10.99.50.0
 kubernetes_backend: udp
-kubernetes_master_group: kubernetes_master
-kubernetes_minion_group: kubernetes_minion
-kubernetes_etcd_group: kubernetes_minion
 
+fleet_delegation: "core101.{{ dns_base }}"
+
+### --- FLANNEL --- ###
 flannel_overlay_network: "{{ kubernetes_overlay_network }}"
 flannel_overlay_prefix:  "{{ kubernetes_overlay_prefix }}"
 flannel_subnets: "{{ kubernetes_subnets }}"
 flannel_subnets_min: "{{ kubernetes_subnets_min }}"
 flannel_subnets_max: "{{ kubernetes_subnets_max }}"
+flannel_backend: "{{ kubernetes_backend }}"
 flannel_etcd_group: kubernetes_minion
 flannel_config_group: kubernetes_minion
-
-fleet_deployed: true
-fleet_delegation: "core101.{{ dns_base }}"
-fleet_endpoints: "{% for host in groups[kubernetes_minion_group] %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %}"

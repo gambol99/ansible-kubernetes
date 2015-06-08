@@ -1,0 +1,16 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-06 12:23:26 +0100 (Sat, 06 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+- hosts: localhost
+  tasks:
+    - include_vars: "../sites/{{ location | mandatory }}/vars/{{ location }}.yml"
+
+- hosts: bastion
+  tasks:
+    - shell: fleetctl list-units
+      register: output
+    - debug: var="{{ output.stdout_lines }}"

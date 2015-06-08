@@ -17,6 +17,7 @@
   
 - name: create the api fleet unit
   delegate_to: "{{ fleet_delegation }}"
+  run_once: true
   template: 
     src:  kubernetes-api.service.j2
     dest: /config/kubernetes/kubernetes-api.service
@@ -27,9 +28,8 @@
 
 - name: starting the api service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  sudo: yes
-  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-api.service
-  register: result
+  run_once: true
+  shell: fleetctl start /config/kubernetes/kubernetes-api.service
   tags: 
     - kubernetes
     - kubernetes-master
@@ -37,6 +37,7 @@
 
 - name: create the api presence unit
   delegate_to: "{{ fleet_delegation }}"
+  run_once: true
   template: 
     src:  kubernetes-api-presence.service.j2
     dest: /config/kubernetes/kubernetes-api-presence.service
@@ -48,9 +49,8 @@
 
 - name: starting the api presence service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  sudo: yes
-  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-api-presence.service
-  register: result
+  run_once: true
+  shell: fleetctl start /config/kubernetes/kubernetes-api-presence.service
   tags: 
     - kubernetes
     - kubernetes-api

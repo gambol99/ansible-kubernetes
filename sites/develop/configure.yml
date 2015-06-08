@@ -6,53 +6,35 @@
 #
 ---
 
+- hosts: localhost
+  gather_facts: false
+  sudo: no  
+  tasks:    
+    - name: wait for the box to bootstrap
+      shell: while ! timeout 1 bash -c "echo > /dev/tcp/{{ item }}/2023"; do sleep 0.3; done
+      with_items: groups['coreos']
+
 - hosts: all
   gather_facts: true
-  sudo: yes
   tasks:
-    - include_vars: "../../vars/location/develop.yml"
-    - include_vars: "../../vars/location/sbx.discovery.yml"
+    - include_vars: "vars/{{ location }}.yml"
+    - include_vars: "../sbx/vars/sbx.discovery.yml"
     - include_vars: "../../vars/facts/os.yml"
     - include: "../../vars/facts/main.yml"
-  roles:
-    - common/environment
   tags: location
 
 - hosts: all
   gather_facts: false
-  sudo: yes
+  vars: 
+    fleet_delegation: "core101.{{ dns_base }}"
   roles:
-    - common/hosts
-    - common/resolver
-    - common/distro
-    - common/ntp
     - common/bash
-    - common/ssh_keys
     - common/configdir
-
-- hosts: glusterfs_servers
-  gather_facts: false
-  vars:
-    gluster_server_group: glusterfs_servers
-  roles:
-    - glusterfs/server
-
-- hosts: all
-  gather_facts: false
-  sudo: yes
-  vars:
-  roles:
-    - docker/engine
-    - docker/mirror
-    - flannel/config
-    - flannel/flanneld
+    - bastion
+    - kubernetes/common
     - kubernetes/master
-
-- hosts: all
-  gather_facts: false
-  sudo: yes
-  vars:
-  roles:
-    - flannel/flanneld
     - kubernetes/minion
-    - kubernetes/gluster
+  tags: 
+    - kubernetes
+    - bastion
+    - common

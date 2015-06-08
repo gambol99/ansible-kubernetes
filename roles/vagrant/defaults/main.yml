@@ -1,1 +1,61 @@
-../../../config.yml
+#
+#   Author: Rohith
+#   Date: 2015-04-23 00:49:42 +0100 (Thu, 23 Apr 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+default_virtualbox: &VIRTUALBOX_DEFAULT
+  box: 'puppetlabs/centos-7.0-64-nocm'
+  url: 'https://atlas.hashicorp.com/puppetlabs/boxes/centos-7.0-64-nocm'
+  gui: false
+  resources:
+    cpus: 2
+    memory: 2048
+    biosbootmenu: disabled
+
+default_coreos_virtualbox: &COREOSBOX_DEFAULT
+  box: "coreos-alpha"
+  url: "http://alpha.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
+  cloudinit: 'roles/vagrant/templates/cloudinit.coreos.virtualbox.erb'
+  gui: false
+  resources:
+    cpus: 2
+    memory: 2048
+    biosbootmenu: disabled
+
+boxes:
+  store101.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.53
+  store102.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.54
+  bastion101.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.61
+    fleet:
+      kubernetes: true
+      role: bastion
+  core101.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.203
+    fleet:
+      kubernetes: true
+      role: minion
+  core102.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.204
+    fleet:
+      kubernetes: true
+      role: minion
+  cache101.sbx.example.com:
+    virtualbox:
+      <<: *VIRTUALBOX_DEFAULT
+      ip: 10.250.1.240

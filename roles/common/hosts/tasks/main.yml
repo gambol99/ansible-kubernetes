@@ -6,16 +6,8 @@
 #
 ---
 
-- name: configure hosts file
-  sudo: yes
-  template:
-    src: manage_hosts.j2
-    dest: /etc/hosts 
-    mode: 0444
-  tags: 
-    - common
-    - hosts
-  when: managed_hosts is defined
+
+
 
   #lineinfile:
   #  dest: /etc/hosts

@@ -37,9 +37,8 @@ module Ansible
         hostvars[x] = {
           'provider'   => 'vagrant',
           'location'   => 'sbx',
-          'iface'      => 'enp0s8',
+          'iface'      => 'eth1',
         }.merge(host_inventory[x])
-        hostvars[x]['iface'] = 'eth1' if x =~ /(core|mincore)/
       end
       pretty_print(inventory)
     end
@@ -53,15 +52,7 @@ module Ansible
       File.readlines(filename).inject({}) do |a,line|
         if line =~ /ansible_ssh_host/
           elements = line.split(' ')
-          a[elements.first] ||= {
-            'ansible_ssh_host'  => '127.0.0.1',
-            'ansible_ssh_port'  => elements.last.split('=').last,
-          }
-          ## @@@TODO need to change this
-          if elements.first =~ /^(core|mincore)/
-            a[elements.first]['ansible_ssh_user'] = 'core'
-            a[elements.first]['ansible_python_interpreter'] = 'PATH=/home/core/bin:$PATH python'
-          end
+          a[elements.first] ||= {}
         end
         a
       end

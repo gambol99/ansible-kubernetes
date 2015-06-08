@@ -5,7 +5,7 @@
 #  vim:ts=2:sw=2:et
 #
 
- [Unit]
+[Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 Requires=kubernetes-api.service
@@ -13,11 +13,11 @@ After=kubernetes-api.service
 
 [Service]
 EnvironmentFile=/etc/environment
-EnvironmentFile=/etc/network-environment
 
 Restart=always
 RestartSec=10
 
+ExecStart=chmod +x {{ kubernetes_dir }}/bin/hyperkube 
 ExecStart={{ kubernetes_dir }}/bin/hyperkube controller-manager \
   --cluster-name={{ kubernetes_cluster_name }} \
   --master=127.0.0.1:4343 \

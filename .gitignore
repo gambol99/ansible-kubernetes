@@ -11,9 +11,11 @@
 .vagrant/
 .aws
 .vault
+.vcloud
 .credentials.yml
+ansible.key
 sbx.discovery.yml
-sites/sbx/vars/sbx.discovery.yml
-sites/develop/vars/develop.discovery.yml
-sites/dev
-roles/services
+generated/
+sites/dev/
+sites/farn/
+

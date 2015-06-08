@@ -12,7 +12,6 @@ ansible:
 	docker build -t ${AUTHOR}/ansible .
 
 develop:
-	vagrant up /gluster101/
 	vagrant up /core101/
 	make develop-play
 
@@ -31,7 +30,6 @@ sbx:
 	vagrant up /bastion101/
 	vagrant up /core101/
 	vagrant up /core102/
-	vagrant up /gluster101/ 
 	make sbx-play
 
 sbx-play:

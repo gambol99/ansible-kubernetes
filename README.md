@@ -92,15 +92,6 @@ The inventory requires a .credentials file to be dropped into the inventory (git
 
 Take a look at the Makefile to see whats happening.
 
-#### ** Storage Layer **
-
-A GlusterFS storage layer is configured underneath to provide persistency for various container frameworks (note: this is automatically injected as an endpoint service for kubernetes)  
-
-#### ** HTTP/s Router **
-
-A HTTP router (roles/gateway/http_router) has been added to the build, allowing to reuse the host 80/443 ports across multiple HTTP services; the configuration is automatically generated and configured by annontation in deployed kubernetes services. Note, i'm presently added a integeration piece for the vulcand so hopely will be able to remove this.
-
-
 #### ** CoreOS ** 
 
 Support for CoreOS has been adedd - if you wich to check kubernetes on CoreOS run make kcore. The deployment of infrastructure is handled in numerious ways depending on how and where you've setup the kubernetes master. You can deploy units via standard ansiable play, i.e. generate the unit file copy to the box and start up, or you can deploy via fleetctl and delegated to by default the master or whomever you wish. Note, the master does not have to be part of the cluster if you don't wish. 

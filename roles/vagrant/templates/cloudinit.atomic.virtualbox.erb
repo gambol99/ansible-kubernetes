@@ -59,6 +59,38 @@ coreos:
     public-ip: \$private_ipv4
     metadata: public_ip=\$private_ipv4,location=sbx,role=kubernetes,minion=true,master=true,host=<%= @hostname.gsub(/[0-9]*/,'') %>,<%= @fleet.map { |k,v| "#{k}=#{v}" }.join(',') %>
   units:
+    [Unit]
+      Description=Install Bastion Container
+      Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+      Requires=fleet.service 
+      After=fleet.service 
+
+      [Service]
+      Restart=on-failure
+      RestartSec=5
+      TimeoutStartSec=0
+      ExecStartPre=-/usr/bin/docker kill bastion
+      ExecStartPre=-/usr/bin/docker rm bastion
+      ExecStartPre=/usr/bin/docker pull gambol99/bastion
+      ExecStart=/usr/bin/docker run \
+        --name bastion \
+        --pid=host --net=host --ipc=host \
+        -v /config:/config \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /var/run/fleet.sock:/var/run/fleet.sock \
+        -v /var/run/dbus:/var/run/dbus \
+        -v /run/systemd:/run/systemd \
+        -v /usr/bin/fleetctl:/usr/bin/fleetctl \
+        -v /usr/bin/docker:/var/bin/docker \
+        -v /etc/systemd/system:/etc/systemd/system \
+        -v /:/host \
+        gambol99/bastion
+
+      [Install]
+      WantedBy=multi-user.target
+
+      [X-Fleet]
+      Global=true
     - name: etcd.service
       command: start
     - name: fleet.service

@@ -8,32 +8,22 @@
 
 - name: downloading the etcd binary
   sudo: yes
-  get_url:
-    url: "{{ etcd_release }}"
-    dest: /opt/etcd.tar.gz
-    mode: 0400
+  get_url: url="{{ etcd_release }}" dest=/opt/etcd.tar.gz mode=0400
   tags: etcd
 
-- stat: path="/opt/etcd-{{ etcd_image_tag }}-linux-amd64"
+- stat: path="/opt/etcd-{{ etcd_version }}-linux-amd64"
   register: extracted
   tags: etcd
 
 - name: extract the etcd binary
   sudo: yes
-  unarchive:
-    src: /opt/etcd.tar.gz
-    dest: /opt
-    copy: no
-  tags: etcd
+  unarchive: src=/opt/etcd.tar.gz dest=/opt copy=no
   when: extracted.stat.exists == False
+  tags: etcd
 
 - name: create a etcd distribution links
   sudo: yes
-  file:
-    src: "/opt/etcd-{{ etcd_image_tag }}-linux-amd64/{{ item }}"
-    dest: "/usr/bin/{{ item }}"
-    state: link
-    force: yes
+  file: src="/opt/etcd-{{ etcd_version }}-linux-amd64/{{ item }}" dest="/usr/bin/{{ item }}" state=link force=yes
   with_items:
     - etcd
     - etcdctl

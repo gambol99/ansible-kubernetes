@@ -7,4 +7,4 @@
 ---
 dependencies:
   - kubernetes/common
-  - kubernetes/platform
+#  - kubernetes/platform

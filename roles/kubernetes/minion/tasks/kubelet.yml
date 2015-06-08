@@ -20,8 +20,7 @@
 - name: starting the kubelet service via fleet
   run_once: true
   delegate_to: "{{ fleet_delegation }}"
-  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-kubelet.service
-  register: result
+  shell: fleetctl start /config/kubernetes/kubernetes-kubelet.service
   tags: 
     - kubernetes
     - kubernetes-minion

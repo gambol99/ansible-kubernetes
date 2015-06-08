@@ -9,18 +9,15 @@
 groups:
   - name: bastion
     hosts: bastion101
-  
+
   - name: coreos
-    hosts: core[0-9]{1,3}
+    hosts: (core|store|bastion)[0-9]{1,3}
 
   - name: docker
     hosts: docker
 
   - name: docker-cache
     hosts: cache[0-9]{1,3}
-
-  - name: etcd_servers
-    hosts: master101
 
   - name: glusterfs_servers
     hosts: gluster[0-9]{1,3}
@@ -33,9 +30,6 @@ groups:
 
   - name: kubernetes_minion
     hosts: core[0-9]{1,3}
-
-  - name: yum-mirrors
-    hosts: cache[0-9]{1,3}
 
   - name: kubernetes
     groups:

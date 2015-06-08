@@ -6,18 +6,34 @@
 #
 ---
 
-- file: path=/home/bastion/.ssh state=directory mode=0550
+- file: path=/config/bastion state=directory mode=0770
 
-- name: adding the bastion ssh keys
+- name: adding the ssh keys
+  authorized_key: 
+    path: /config/bastion/authorized_keys
+    user: root 
+    key: "{{ lookup('file', item) }}"
+  with_fileglob:
+    - public_keys/*
+  tags: bastion
+
+- name: create the bastion service fleet unit
+  delegate_to: "{{ fleet_delegation }}"
   template: 
-    src: id_rsa.j2
-    dest: "/root/.ssh/{{ item.name }}"
-    mode: 0400
-  with_items: "{{ bastion_keys }}"
+    src:  bastion.service.j2
+    dest: /config/bastion/bastion.service
+  register: service_file 
+  tags: bastion
 
-- name: adding the bastion public ssh key
-  copy: 
-    src: files/bastion.pub
-    dest: /root/.ssh/id_rsa.pub
-    mode: 0400
+- name: restarting the bastion service 
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  shell: fleetctl destroy bastion && fleetctl start /config/bastion/bastion.service 
+  when: service_file.changed 
+  tags: bastion
 
+- name: deploy the bastion service via fleet
+  delegate_to: "{{ fleet_delegation }}"
+  sudo: yes
+  shell: fleetctl start /config/bastion/bastion.service
+  tags: bastion

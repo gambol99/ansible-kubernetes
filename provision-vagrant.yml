@@ -6,17 +6,7 @@
 #
 ---
 
-- hosts: "{{ hostname }}"
+- hosts: localhost
   gather_facts: false
-  roles:
-    - { role: coreos/bootstrap, when: is_coreos }
-
-- hosts: "{{ hostname }}"
-  gather_facts: true
   tasks:
-    - include_vars: "vars/facts/os.yml"
-
-- hosts: "{{ hostname }}"
-  gather_facts: false
-  roles:
-    - vagrant
+    - include_vars: sites/sbx/vars/sbx.yml

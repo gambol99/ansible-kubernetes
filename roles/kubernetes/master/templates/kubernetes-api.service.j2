@@ -12,11 +12,11 @@ After=docker-mirror.service
 
 [Service]
 EnvironmentFile=/etc/environment
-EnvironmentFile=/etc/network-environment
 
 Restart=always
 RestartSec=10
 
+ExecStart=chmod +x {{ kubernetes_dir }}/bin/hyperkube 
 ExecStart={{ kubernetes_dir }}/bin/hyperkube apiserver \
   --cluster-name={{ kubernetes_cluster_name }} \
   --allow_privileged=true \
@@ -28,10 +28,9 @@ ExecStart={{ kubernetes_dir }}/bin/hyperkube apiserver \
   --token_auth_file=/config/kubernetes/{{ kubernetes_token_filename }} \ 
 {% endif %}
   --portal_net={{ kubernetes_overlay_network }}/{{ kubernetes_overlay_prefix }} \
-{% if kubernetes_etcd_group is defined %}
-  --etcd_servers={% for host in ( groups[kubernetes_etcd_group] | sort ) %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %} \
-{% else %}
   --etcd_servers=http://127.0.0.1:4001 \
-{% endif %}
-  --public_address_override=${PRIVATE_IP} \
+  --public_address_override=${COREOS_PRIVATE_IPV4} \
   --logtostderr=true
+
+[X-Fleet]
+MachineMetadata=host=core

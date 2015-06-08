@@ -17,5 +17,5 @@
     - bash
     - systemd
     - ssh
-  tags:
-    - common
+  tags: bash
+  when: is_centos

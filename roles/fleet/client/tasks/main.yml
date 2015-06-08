@@ -6,7 +6,7 @@
 #
 ---
 
-- name: creating the data directory
+- name: creating the fleet directory
   sudo: yes
   file: path={{ fleet_dir }} state=directory mode=0770
   tags: fleet

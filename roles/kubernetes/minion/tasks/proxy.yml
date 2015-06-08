@@ -21,7 +21,7 @@
   run_once: true
   delegate_to: "{{ fleet_delegation }}"
   sudo: yes
-  shell: fleetctl --endpoint="{{ fleet_endpoints }}" start /config/kubernetes/kubernetes-proxy.service
+  shell: fleetctl start /config/kubernetes/kubernetes-proxy.service
   register: result
   tags: 
     - kubernetes

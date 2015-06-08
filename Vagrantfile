@@ -14,6 +14,9 @@ require 'erb'
 VAGRANT_DEFAULT_PROVIDER = 'virtualbox'
 ENVIRONMENT_CONFIG       = "./config.yml"
 ETCD_DISCOVERY_TOKEN     = "./sites/sbx/vars/sbx.discovery.yml"
+VAGRANT_PLUGINS = [
+  'vagrant-hostsupdater'
+]       
 
 def boxes
   require ArgumentError, "unable to find the vagrant config" unless File.exist?(ENVIRONMENT_CONFIG)
@@ -37,13 +40,28 @@ def discovery_token(filename = ETCD_DISCOVERY_TOKEN)
   end
 end
 
+#
+# We use the users public key and inject into the cloudinit
+#
+def public_key
+  @key ||= File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
+end
+
+#
+# Check for the vagrant plugins
+#
+VAGRANT_PLUGINS.each do |x|
+  raise "This vagrant environment requires #{x} plugin installed!" unless  Vagrant.has_plugin?(x)
+end
+
 Vagrant.configure(2) do |config|
   boxes.each_pair do |hostname, host|
-    @hostname = hostname.split('.').first
-    @domain   = hostname.split('.')[1..20].join('.')
-    vbox      = host['virtualbox']
+    @hostname   = hostname.split('.').first
+    @domain     = hostname.split('.')[1..20].join('.')
+    @public_key = public_key
+    vbox        = host['virtualbox']
 
-    is_coreos = @hostname =~ /^(core|mincore)/
+    is_coreos = @hostname =~ /^(core|store|bastion)/
 
     #
     # Cloudinit configuration
@@ -61,6 +79,7 @@ Vagrant.configure(2) do |config|
       x.vm.box       = host['virtualbox']['box'] 
       x.vm.box_url   = host['virtualbox']['url']
 
+      x.ssh.insert_key = false
       #
       # Virtualbox related configuration
       #

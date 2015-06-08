@@ -12,14 +12,14 @@ After=kubernetes.proxy
 
 [Service]
 EnvironmentFile=/etc/environment
-EnvironmentFile=/etc/network-environment
 Restart=always
 RestartSec=10
 
+ExecStart=chmod +x {{ kubernetes_dir }}/bin/hyperkube 
 ExecStart={{ kubernetes_dir }}/bin/hyperkube kubelet \
   --address=0.0.0.0 \
   --port=10250 \
-  --hostname_override=${PRIVATE_IP} \
+  --hostname_override=${COREOS_PRIVATE_IPV4} \
   --cluster-domain={{ dns_base }} \
   --api_servers=127.0.0.1:4343 \
   --allow_privileged=true \
@@ -31,4 +31,5 @@ ExecStart={{ kubernetes_dir }}/bin/hyperkube kubelet \
 WantedBy=multi-user.target
 
 [X-Fleet]
+MachineMetadata=host=core
 Global=true

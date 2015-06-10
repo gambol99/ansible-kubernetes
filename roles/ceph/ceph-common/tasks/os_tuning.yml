@@ -1,0 +1,26 @@
+---
+- name: disable OSD directory parsing by updatedb
+  command: updatedb -e /var/lib/ceph
+  ignore_errors: true
+  changed_when: False
+
+- name: disable transparent hugepage
+  command: "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+  when: disable_transparent_hugepage
+  ignore_errors: true
+  changed_when: False
+
+- name: disable swap
+  command: swapoff -a
+  when: disable_swap
+  ignore_errors: true
+  changed_when: False
+
+- name: apply OS tuning
+  sysctl: >
+    name={{ item.name }}
+    value={{ item.value }}
+    state=present
+    sysctl_file=/etc/sysctl.conf
+    ignoreerrors=yes
+  with_items: os_tuning_params

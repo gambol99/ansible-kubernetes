@@ -25,15 +25,25 @@ clean:
 halt:
 	vagrant halt
 
+gluster:
+	vagrant up /gluster101/
+	vagrant up /gluster102/
+	make sbx-play
+
 sbx:
 	export VAGRANT_DEFAULT_PROVIDER=virtualbox
-	vagrant up /bastion101/
 	vagrant up /core101/
 	vagrant up /core102/
 	make sbx-play
 
 sbx-play:
 	./run -s sbx -i vagrant -p configure.yml
+
+ceph:
+	vagrant up /ceph/
+	make sbx-play
+
+ceph-play: sbx-play
 
 eu1:
 	ansible-playbook -i inventory/aws_eu1 -e location=eu1 playbooks/kubernetes.yml

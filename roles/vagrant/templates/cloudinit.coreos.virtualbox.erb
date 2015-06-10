@@ -62,18 +62,6 @@ write_files:
       keys  = [
         "/hosts"
       ]
-  - path: /etc/ssh/sshd_config
-    permissions: 0600
-    owner: root:root
-    content: |
-      # Use most defaults for sshd configuration.
-      UsePrivilegeSeparation sandbox
-      Subsystem sftp internal-sftp
-
-      PermitRootLogin no
-      AllowUsers core
-      PasswordAuthentication no
-      ChallengeResponseAuthentication no
   - path: /run/hosts-etc.service
     permissions: 0440
     owner: root:root
@@ -128,25 +116,98 @@ coreos:
   fleet:
     public-ip: \$private_ipv4
     metadata: cluster=dev,location=dev,host=<%= @hostname.gsub(/[0-9]*/,'') %>,<%= @fleet.map { |k,v| "#{k}=#{v}" }.join(',') %>
+  flannel:
+    interface: eth1
   units:
     - name: etcd.service
       command: start
     - name: fleet.service
       command: start
-    - name: sshd.socket
-      command: restart
-      content: |
-        [Socket]
-        ListenStream=2222
-        Accept=yes
     - name: flanneld.service
       command: start
       enable: true
       drop-ins:
       - name: 50-network-config.conf
         content: |
+          [Unit]
+          Requires=etcd.service
+          After=etcd.service
           [Service]
-          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.101.0.0/16" }'
+          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network" : "10.244.0.0/16", "Backend" : { "Type" : "vxlan" } }'
+    - name: flanneld-fixup.service
+      command: start
+      content: |
+        [Unit]
+        Description=Fixup Flanneld 
+        Requires=flanneld.service
+        Requires=docker.service
+        After=flanneld.service
+        After=docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/bin/ip link delete docker0
+        ExecStart=/bin/systemctl restart docker
+    - name: format-ephemeral.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the ephemeral drive
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/sbin/wipefs -f /dev/sdb
+        ExecStart=/usr/sbin/mkfs.ext4 /dev/sdb
+    - name: var-lib-docker.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount ephemeral to /var/lib/docker
+        Requires=format-ephemeral.service
+        After=format-ephemeral.service
+        Before=docker.service
+        [Mount]
+        What=/dev/sdb
+        Where=/var/lib/docker
+        Type=ext4
+    - name: restart-docker.service
+      command: start
+      content: |
+        [Unit]
+        Description=Restart Docker Service
+        Requires=var-lib-docker.mount
+        After=var-lib-docker.mount
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/systemctl restart docker 
+    <%- if @hostname =~ /^(gluster|store)/ -%>
+    <%- mountpount = ( @hostname =~ /^gluster/ ) ? 'srv/gluster' : 'var/lib/ceph' -%>
+    - name: format-storage.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the Storage drive
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/sbin/wipefs -f /dev/sdc
+        ExecStartPre=/usr/sbin/mkfs.xfs /dev/sdc
+        ExecStart=/bin/mkdir -p <%= mountpount %>
+    - name: <%= mountpount.gsub('/','-') %>.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount ephemeral to /var/lib/docker
+        Requires=format-storage.service
+        After=format-storage.service
+        Before=docker.service
+        [Mount]
+        What=/dev/sdc
+        Where=/<%= mountpount %>
+        Type=xfs
+    <%- end -%>
     - name: install-ansible.service 
       command: start 
       content: |
@@ -159,7 +220,7 @@ coreos:
         Type=oneshot
         RemainAfterExit=yes
         TimeoutStartSec=300
-        ExecStart=/usr/bin/mkdir -p /config/ansible
+        ExecStartPre=/usr/bin/mkdir -p /config/ansible
         ExecStart=/usr/bin/bash -c "while true; do /usr/bin/fleetctl start /run/ansible.service && exit 0 || sleep 2; done"
     - name: install-confd.service
       command: start
@@ -172,8 +233,8 @@ coreos:
         RemainAfterExit=yes
         TimeoutStartSec=300
 
-        ExecStart=-/usr/bin/mkdir -p /opt/bin /etc/confd/conf.d /etc/confd/templates
-        ExecStart=-/bin/wget -q https://github.com/kelseyhightower/confd/releases/download/v0.9.0/confd-0.9.0-linux-amd64 -O /opt/bin/confd
+        ExecStartPre=-/usr/bin/mkdir -p /opt/bin /etc/confd/conf.d /etc/confd/templates
+        ExecStartPre=-/bin/wget -q https://github.com/kelseyhightower/confd/releases/download/v0.9.0/confd-0.9.0-linux-amd64 -O /opt/bin/confd
         ExecStart=/bin/chmod +x /opt/bin/confd
     - name: host-presence.service
       command: start
@@ -226,8 +287,8 @@ coreos:
         Type=oneshot
         RemainAfterExit=yes
         TimeoutStartSec=300
-        ExecStart=-/usr/bin/mkdir -p /opt/kubernetes/bin
-        ExecStart=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
-        ExecStart=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
+        ExecStartPre=-/usr/bin/mkdir -p /opt/kubernetes/bin
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
         ExecStart=/bin/chmod +x /opt/kubernetes/bin/hyperkube /opt/kubernetes/bin/kubectl
 EOF

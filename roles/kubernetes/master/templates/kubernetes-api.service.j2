@@ -16,7 +16,7 @@ EnvironmentFile=/etc/environment
 Restart=always
 RestartSec=10
 
-ExecStart=chmod +x {{ kubernetes_dir }}/bin/hyperkube 
+ExecStartPre=/usr/bin/chmod +x {{ kubernetes_dir }}/bin/hyperkube 
 ExecStart={{ kubernetes_dir }}/bin/hyperkube apiserver \
   --cluster-name={{ kubernetes_cluster_name }} \
   --allow_privileged=true \

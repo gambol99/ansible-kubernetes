@@ -1,0 +1,26 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-10 10:55:40 +0100 (Wed, 10 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+Description=Gluster File System
+
+[Service]
+EnvironmentFile=/etc/environment
+
+ExecStartPre=/bin/mkdir -p {{ gluster_bricks_dir }} 
+ExecStart=/usr/bin/docker run \
+  --name gluster \
+  --net=host \
+  --cap-add=SYS_ADMIN \
+  -v {{ gluster_bricks_dir }}:/srv/gluster \
+  {{ gluster_image }}/{{ gluster_image_tag }}
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+MachineMetadata={{ gluster_tag }}=true
+Global=true

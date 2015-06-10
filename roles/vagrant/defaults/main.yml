@@ -30,10 +30,43 @@ boxes:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.53
+      disks:
+        - name: docker
+          size: 8192
+        - name: ceph
+          size: 8192
+    fleet:
+       ceph_monitor: true
+       ceph_osd: true
   store102.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.54
+      disks:
+        - name: docker
+          size: 8192
+        - name: ceph
+          size: 8192
+    fleet:
+       ceph_monitor: true
+       ceph_osd: true
+  gluster101.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.57
+      disks:
+        - name: docker
+          size: 8192
+        - name: gluster
+          size: 8192
+    fleet:
+      gluster: true
+  gluster102.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.58
+    fleet:
+      gluster: true
   bastion101.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
@@ -45,6 +78,9 @@ boxes:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.203
+      disks:
+        - name: docker
+          size: 8192
     fleet:
       kubernetes: true
       role: minion
@@ -52,6 +88,9 @@ boxes:
     virtualbox:
       <<: *COREOSBOX_DEFAULT
       ip: 10.250.1.204
+      disks:
+        - name: docker
+          size: 8192
     fleet:
       kubernetes: true
       role: minion
@@ -59,3 +98,6 @@ boxes:
     virtualbox:
       <<: *VIRTUALBOX_DEFAULT
       ip: 10.250.1.240
+      disks:
+        - name: docker
+          size: 8192

@@ -9,6 +9,7 @@ ROOT = $:.unshift File.join(File.dirname(__FILE__),'.','./lib')
 
 require 'fog'
 require 'cli'
+require 'pp'
 
 module Ansible
   class VCloud < Inventory
@@ -70,7 +71,7 @@ module Ansible
     end
 
     def vdc_servers(vdc_name = credentials['vdc'])
-      vdc(vdc_name).vapps.map { |x| x.vms.first.vapp_name }
+      vdc(vdc_name).vapps.select { |x| !x.vms.empty? }.map { |x| x.vms.first.vapp_name }
     end
 
     def vcloud

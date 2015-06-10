@@ -21,6 +21,7 @@ ExecStartPre=/usr/bin/docker pull gambol99/bastion
 ExecStart=/usr/bin/docker run \
   --name bastion \
   --pid=host --net=host --ipc=host \
+  -v /etc/hosts:/etc/hosts \
   -v /config:/config \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/run/fleet.sock:/var/run/fleet.sock \
@@ -29,11 +30,11 @@ ExecStart=/usr/bin/docker run \
   -v /usr/bin/etcdctl:/usr/bin/etcdctl \
   -v /usr/bin/fleetctl:/usr/bin/fleetctl \
   -v /usr/bin/docker:/usr/bin/docker \
+  -v /opt/kubernetes/bin/kubectl:/usr/bin/kubectl \
   -v /etc/systemd/system:/etc/systemd/system \
   -v /:/host \
   gambol99/bastion
 
-#  -v /opt/kubernetes/bin/kubectl:/usr/bin/kubectl \
 [Install]
 WantedBy=multi-user.target
 

@@ -10,3 +10,8 @@
   gather_facts: false
   tasks:
     - include_vars: sites/sbx/vars/sbx.yml
+
+- hosts: "{{ hostname }}"
+  gather_facts: false
+  roles:
+    - { role: vagrant, when: "is_coreos == false" }

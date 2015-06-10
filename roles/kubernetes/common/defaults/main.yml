@@ -8,11 +8,3 @@
 
 kubernetes_cluster_name: "kube-{{ location }}"
 kubernetes_dir: /opt/kubernetes
-#kubernetes_master_name: "{{ groups['kubernetes_master'][0] }}"
-#kubernetes_master_ipaddress: "{{ hostvars[kubernetes_master_hostname].ansible_env['PRIVATE_IP'] }}"
-kubernetes_master_group: kubernetes_master
-kubernetes_minion_group: kubernetes_minion
-
-## - Networking - ##
-fleet_delegation: "{{ kubernetes_master_hostname }}"
-fleet_endpoint: "{{ kubernetes_master_hostname }}"

@@ -6,18 +6,9 @@
 #
 ---
 
-#- include: centos.yml
-#  when: is_centos
-#
-#- name: add our ssh key for provisioning
-#  authorized_key:
-#    user: root
-#    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-#    path: '/root/.ssh/authorized_keys'
-#    manage_dir: yes
-#
-#- name: create the vagrant envionment file
-#  template:
-#    src: environment.j2
-#    dest: /etc/environment
-
+- name: add our ssh key for provisioning
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    path: '/root/.ssh/authorized_keys'
+    manage_dir: yes

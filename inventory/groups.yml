@@ -11,7 +11,16 @@ groups:
     hosts: bastion101
 
   - name: coreos
-    hosts: (core|store|bastion)[0-9]{1,3}
+    hosts: (.*)[0-9]{1,3}
+
+  - name: ceph
+    hosts: ceph[0-9]{1,3}
+
+  - name: ceph-monitor
+    hosts: ceph[0-9]{1,3}
+
+  - name: ceph-osd
+    hosts: ceph[0-9]{1,3}
 
   - name: docker
     hosts: docker
@@ -19,20 +28,20 @@ groups:
   - name: docker-cache
     hosts: cache[0-9]{1,3}
 
-  - name: glusterfs_servers
+  - name: gluster
     hosts: gluster[0-9]{1,3}
 
   - name: openvpn_servers
     hosts: openvpn[0-9]{1,3}
 
-  - name: kubernetes_master
+  - name: kubernetes-master
     hosts: (master101|core101)
 
-  - name: kubernetes_minion
+  - name: kubernetes-minion
     hosts: core[0-9]{1,3}
 
   - name: kubernetes
     groups:
-      - kubernetes_master
-      - kubernetes_minion
+      - kubernetes-master
+      - kubernetes-minion
 

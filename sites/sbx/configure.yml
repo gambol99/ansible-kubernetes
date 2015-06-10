@@ -11,16 +11,19 @@
   sudo: no  
   tasks:    
     - name: "wait for the box {{ item }} to bootstrap"
-      shell: while ! timeout 1 bash -c "echo > /dev/tcp/{{ item }}/2023"; do sleep 0.3; done
+      shell: while ! timeout 1 bash -c "echo > /dev/tcp/{{ item }}/2023"; do sleep 0.5; done
       with_items: groups['coreos']
-
+    
 - hosts: all
   gather_facts: true
+  vars:
+    bastion_hostname: "{{ bastion | default('core101') }}"
   tasks:
     - include_vars: "vars/{{ location | mandatory }}.yml"
     - include_vars: "vars/{{ location | mandatory }}.discovery.yml"
     - include_vars: "../../vars/facts/os.yml"
     - include: "../../vars/facts/main.yml"
+    - set_fact: bastion_host="{{ bastion_hostname }}"
   roles:
     - common/environment
   tags: location
@@ -31,6 +34,12 @@
     - common/bash
     - common/configdir
   tags: common
+
+- hosts: gluster
+  gather_facts: false
+  roles:
+    - gluster/server
+  tags: gluster-server
 
 - hosts: bastion
   gather_facts: false

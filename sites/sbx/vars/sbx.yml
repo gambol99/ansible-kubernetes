@@ -33,7 +33,4 @@ kubernetes_subnets_min: 10.99.1.0
 kubernetes_subnets_max: 10.99.50.0
 kubernetes_backend: udp
 
-bastion_host: "bastion101.{{ dns_base }}" 
-fleet_deployed: true
-fleet_delegation: "{{ bastion_host }}"
-fleet_endpoints: "{% for host in groups[kubernetes_minion_group] %}http://{{ host }}:4001{% if not loop.last %},{% endif %}{% endfor %}"
+fleet_delegation: "{{ bastion_host }}.{{ dns_base }}"

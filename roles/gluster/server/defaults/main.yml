@@ -6,5 +6,8 @@
 #
 ---
 
-gluster_group: glusterfs_servers
+gluster_group: gluster
 gluster_bricks_dir: /srv/gluster/
+gluster_image: paulczar/glusterfs
+gluster_image_tag: latest
+

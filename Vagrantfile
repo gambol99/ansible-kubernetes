@@ -10,9 +10,11 @@
 require 'yaml'
 require 'net/http'
 require 'erb'
+require 'fileutils'
 
 VAGRANT_DEFAULT_PROVIDER = 'virtualbox'
 ENVIRONMENT_CONFIG       = "./config.yml"
+EXTRA_DISKS              = "./extra_disks"
 ETCD_DISCOVERY_TOKEN     = "./sites/sbx/vars/sbx.discovery.yml"
 VAGRANT_PLUGINS = [
   'vagrant-hostsupdater'
@@ -33,7 +35,7 @@ def discovery_token(filename = ETCD_DISCOVERY_TOKEN)
     token = YAML.load(File.open(filename))['etcd_discovery_token']
   else 
     # step: we need to grab a new token
-    token = Net::HTTP.get(URI.parse('https://discovery.etcd.io/new'))
+    token = Net::HTTP.get(URI.parse('https://discovery.etcd.io/new?size=1'))
     # step: save the token for later use -
     File.open(filename, "w") { |fd| fd.write({ 'etcd_discovery_token' => token }.to_yaml) }
     token
@@ -46,6 +48,11 @@ end
 def public_key
   @key ||= File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
 end
+
+def extra_disk(name, hostname)
+  FileUtils.mkdir_p('./extra_disks') if File.exist?(EXTRA_DISKS)
+  "#{EXTRA_DISKS}/#{name}-#{hostname}.vdi"
+end 
 
 #
 # Check for the vagrant plugins
@@ -60,9 +67,9 @@ Vagrant.configure(2) do |config|
     @domain     = hostname.split('.')[1..20].join('.')
     @public_key = public_key
     vbox        = host['virtualbox']
-
-    is_coreos = @hostname =~ /^(core|store|bastion)/
-
+    
+    is_coreos   = vbox['box'] =~ /^core/
+    
     #
     # Cloudinit configuration
     #
@@ -71,7 +78,7 @@ Vagrant.configure(2) do |config|
       # step: do we need a discovery token
       @discovery = discovery_token
       @fleet     = host['fleet'] || {}
-      cloudinit  = ERB.new(File.read(vbox['cloudinit']), nil, '-' ).result( binding ) if is_coreos
+      cloudinit  = ERB.new(File.read(vbox['cloudinit']), nil, '-' ).result( binding )
     end
 
     config.vm.define hostname do |x|
@@ -79,14 +86,27 @@ Vagrant.configure(2) do |config|
       x.vm.box       = host['virtualbox']['box'] 
       x.vm.box_url   = host['virtualbox']['url']
 
-      x.ssh.insert_key = false
       #
       # Virtualbox related configuration
       #
       x.vm.provider :virtualbox do |virtualbox,override|
         virtualbox.gui   = vbox['gui'] || false
         virtualbox.name  = hostname
-        vbox['resources'].each_pair do |key,value|
+        
+        #
+        # Extra disks and storage
+        # 
+        ( vbox['disks'] || [] ).each_with_index do |disk,index|
+          disk_filename = extra_disk(disk['name'], hostname)
+          unless File.exist?(disk_filename)
+            virtualbox.customize ['createhd', '--filename', disk_filename, '--size', disk['size'] ]
+          end
+          virtualbox.customize [ 'storageattach', :id, 
+            '--storagectl', 'IDE Controller', '--port', 1, '--device', index, 
+            '--type', 'hdd', '--medium', disk_filename ]
+        end
+
+        (vbox['resources'] || {} ).each_pair do |key,value|
           virtualbox.customize [ "modifyvm", :id, "--#{key}", value ]
         end
 
@@ -106,7 +126,6 @@ Vagrant.configure(2) do |config|
           if is_coreos
             ansible.extra_vars.merge!({
               "ansible_ssh_user"           => "core",
-              "ansible_python_interpreter" => "PATH=/home/core/bin:$PATH python",
               "iface"                      => "eth1",
               "is_coreos"                  => true,
             })

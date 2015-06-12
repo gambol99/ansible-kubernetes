@@ -7,7 +7,8 @@
 ---
 
 gluster_group: gluster
+gluster_fleet_tag: gluster
 gluster_bricks_dir: /srv/gluster/
-gluster_image: paulczar/glusterfs
+gluster_image: humble/fed20-gluster
 gluster_image_tag: latest
 

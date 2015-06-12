@@ -5,22 +5,29 @@
 #  vim:ts=2:sw=2:et
 #
 
+[Unit]
 Description=Gluster File System
+Requires=etcd.service
+Requires=fleet.service
+After=fleet.service
 
 [Service]
+TimeoutStartSec=0
 EnvironmentFile=/etc/environment
-
 ExecStartPre=/bin/mkdir -p {{ gluster_bricks_dir }} 
+ExecStartPre=/usr/bin/docker pull {{ gluster_image }}:{{ gluster_image_tag }}
 ExecStart=/usr/bin/docker run \
   --name gluster \
-  --net=host \
-  --cap-add=SYS_ADMIN \
+  --net=host --rm \
+  --privileged=true \
   -v {{ gluster_bricks_dir }}:/srv/gluster \
-  {{ gluster_image }}/{{ gluster_image_tag }}
+  {{ gluster_image }}:{{ gluster_image_tag }}
+
+ExecStop=/usr/bin/docker kill gluster
 
 [Install]
 WantedBy=multi-user.target
 
 [X-Fleet]
-MachineMetadata={{ gluster_tag }}=true
+MachineMetadata=host=gluster
 Global=true

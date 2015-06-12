@@ -32,11 +32,6 @@ write_files:
       <%- boxes.each_pair do |hostname, config| -%>
       <%= config['virtualbox']['ip'] %> <%= hostname %> 
       <%- end -%>
-  - path: /run/ansible.keys
-    permissions: 0400
-    owner: root:root
-    content: |
-      <%= @public_key %>
   - path: /etc/confd/templates/hosts.cfg.tmpl
     permissions: 0444
     owner: root:root
@@ -80,7 +75,12 @@ write_files:
 
       [X-Fleet]
       Global=true
-  - path: /run/ansible.service
+  - path: /config/ansible/ansible.keys
+    permissions: 0400
+    owner: root:root
+    content: |
+      <%= @public_key %>
+  - path: /config/ansible/ansible.service
     permissions: 0400
     owner: root:root
     content: |
@@ -98,13 +98,16 @@ write_files:
       ExecStartPre=-/usr/bin/docker rm ansible
       ExecStartPre=/usr/bin/docker pull gambol99/ansible
       ExecStart=/usr/bin/docker run \
-        --name ansible --net=host \
+        --name ansible --rm --net=host \
         -v /config:/config \
         -v /etc/environment:/etc/environment \
-        -v /run/ansible.keys:/root/.ssh/authorized_keys \
+        -v /config/ansible/ansible.keys:/root/.ssh/authorized_keys \
+        -v /var/run/docker.sock:/var/run/docker.sock \
         -v /var/run/fleet.sock:/var/run/fleet.sock \
         -v /:/host \
         gambol99/ansible
+
+      ExecStop=/usr/bin/docker kill ansible
 
       [X-Fleet]
       Global=true
@@ -221,7 +224,7 @@ coreos:
         RemainAfterExit=yes
         TimeoutStartSec=300
         ExecStartPre=/usr/bin/mkdir -p /config/ansible
-        ExecStart=/usr/bin/bash -c "while true; do /usr/bin/fleetctl start /run/ansible.service && exit 0 || sleep 2; done"
+        ExecStart=/usr/bin/bash -c "while true; do /usr/bin/fleetctl start /config/ansible/ansible.service && exit 0 || sleep 2; done"
     - name: install-confd.service
       command: start
       content: |
@@ -288,7 +291,7 @@ coreos:
         RemainAfterExit=yes
         TimeoutStartSec=300
         ExecStartPre=-/usr/bin/mkdir -p /opt/kubernetes/bin
-        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
-        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.16.1/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.17.1/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.17.1/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
         ExecStart=/bin/chmod +x /opt/kubernetes/bin/hyperkube /opt/kubernetes/bin/kubectl
 EOF

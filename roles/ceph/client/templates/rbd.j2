@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+#
+#   Author: Rohith
+#   Date: 2015-06-12 16:50:42 +0100 (Fri, 12 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+/usr/bin/docker run -ti --rm \
+  --privileged --net host \
+  -v /proc:/host/proc \
+  -v /etc/ceph:/etc/ceph:ro \
+  -v /dev:/dev {{ ceph_client_rbd_image }}:{{ ceph_client_rbd_image_tag }} "$@"

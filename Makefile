@@ -5,6 +5,8 @@
 #
 
 AUTHOR=gambol99
+CORE_BOXES=core101 core102
+STORE_BOXES=store101 store102
 
 .PHONY: build ansible sbx kube-play mesos-play kube kuberbetes mesos
 
@@ -21,6 +23,7 @@ develop-play:
 clean:
 	vagrant destroy -f
 	rm -f ./sites/sbx/vars/sbx.discovery.yml
+	rm -rf ./extra_disks
 
 halt:
 	vagrant halt
@@ -30,25 +33,24 @@ gluster:
 	vagrant up /gluster102/
 	make sbx-play
 
+all:
+	make sbx
+	make ceph 
+	
 sbx:
 	export VAGRANT_DEFAULT_PROVIDER=virtualbox
-	vagrant up /core101/
-	vagrant up /core102/
+	$(foreach I, $(CORE_BOXES), \
+		vagrant up /$(I)/ ; \
+	)
 	make sbx-play
 
 sbx-play:
 	./run -s sbx -i vagrant -p configure.yml
 
 ceph:
-	vagrant up /ceph/
+	$(foreach I, $(STORE_BOXES), \
+		vagrant up /$(I)/ ; \
+	)
 	make sbx-play
 
 ceph-play: sbx-play
-
-eu1:
-	ansible-playbook -i inventory/aws_eu1 -e location=eu1 playbooks/kubernetes.yml
-	ansible-playbook -i inventory/aws_eu1 -e location=eu1 provision-kubernetes.yml
-
-aws:
-	source .aws
-	ansible-playbook -i inventory/ec2.py -e location=eu1 -e cluster=all playbooks/provision-marathon

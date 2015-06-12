@@ -1,0 +1,25 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:58:15 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the ceph monitor fleet unit
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  template: 
+    src:  ceph-monitor.service.j2
+    dest: /config/ceph/ceph-monitor.service
+  tags: 
+    - ceph
+    - ceph-monitor
+
+- name: starting the ceph service via fleet
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  shell: fleetctl start /config/ceph/ceph-monitor.service
+  tags: 
+    - ceph
+    - ceph-monitor

@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 21:55:20 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+ceph_metadata_image: deis/store-metadata
+ceph_metadata_image_tag: "{{ ceph_version }}"

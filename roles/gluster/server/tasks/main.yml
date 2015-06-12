@@ -6,8 +6,22 @@
 #
 ---
 
-- include: centos.yml
-  when: is_centos
+- file: path=/config/gluster state=directory mode=0550
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  tags: gluster
 
-- include: gluster.yml
+- name: create the gluster proxy fleet unit
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  template: 
+    src:  gluster.service.j2
+    dest: /config/gluster/gluster.service
+  tags: gluster
 
+- name: starting the gluster service via fleet
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  sudo: yes
+  shell: fleetctl start /config/gluster/gluster.service
+  tags: gluster

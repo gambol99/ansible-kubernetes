@@ -1,0 +1,30 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:41:06 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+- name: create the ceph configuration file
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  file: path=/config/ceph state=directory mode=0550
+  tags: ceph
+
+- name: create the ceph configuration file
+  file: path=/config/ceph state=directory mode=0550
+  tags: ceph
+
+- name: creating the namespace for deis storage
+  shell: /bin/etcdctl ls /deis/store/osds >/dev/null 2>/dev/null || /bin/etcdctl mkdir /deis/store/osds
+  ignore_errors: true
+  tags: ceph
+
+#- name: setting the placegroup size to 1 
+#  run_once: true 
+#  shell: /usr/bin/docker exec -ti ceph-monitor ceph osd pool set rbd size 1
+#  when:  store_hosts | int <= 2
+
+- name: adding the hosts to the storage hosts namespace
+  shell: /bin/etcdctl set /deis/store/hosts/$(hostname -i) {{ inventory_hostname }}
+  tags: ceph

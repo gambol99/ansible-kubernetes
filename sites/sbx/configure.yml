@@ -24,8 +24,6 @@
     - include_vars: "../../vars/facts/os.yml"
     - include: "../../vars/facts/main.yml"
     - set_fact: bastion_host="{{ bastion_hostname }}"
-  roles:
-    - common/environment
   tags: location
 
 - hosts: all
@@ -34,6 +32,19 @@
     - common/bash
     - common/configdir
   tags: common
+
+- hosts: ceph
+  gather_facts: false
+  roles:
+    - ceph/monitor
+    - ceph/store
+
+- hosts: core
+  gather_facts: false
+  vars:
+    store_hosts: length(groups['store'])
+  roles:
+    - { role: ceph/client, when: store_hosts | int >= 1  }
 
 - hosts: gluster
   gather_facts: false

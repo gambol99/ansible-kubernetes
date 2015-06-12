@@ -1,0 +1,13 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:41:06 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+ceph_client_rbd_image: ceph/rbd
+ceph_client_rbd_image_tag: latest
+ceph_config_image: deis/store-admin
+ceph_config_image_tag: "{{ ceph_version }}"
+ceph_config_tag: core

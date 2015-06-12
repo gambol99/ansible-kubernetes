@@ -6,14 +6,8 @@
 #
 ---
 
-- name: creating the gluster brick directories
-  sudo: yes
-  file: path={{ gluster_bricks_dir }} state=directory
-  tags: gluster
-
 - name: configure gluster peers
-  shell: gluster peer probe {{item}}
-  with_items: groups[gluster_server_group]
-  when: inventory_hostname == "{{ groups[gluster_server_group][0] }}"
+  shell: /usr/bin/docker exec -ti gluster gluster peer probe {{ item }}
+  with_items: groups[gluster_group]
+  when: inventory_hostname == "{{ groups[gluster_group][0] }}"
   tags: gluster
-

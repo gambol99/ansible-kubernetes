@@ -16,21 +16,14 @@ dns_servers:
   - 8.8.8.8
   - 8.8.4.4
 
-timezone: UTC
-ntp_servers:
-  - 0.uk.pool.ntp.org
-  - 1.uk.pool.ntp.org
-  - 2.uk.pool.ntp.org
-  - 3.uk.pool.ntp.org
-
 ### --- KUBERNETES ---- ####
-kubernetes_version: 0.16.1
+kubernetes_version: 0.17.1
 kubernetes_release: "https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64"
 kubernetes_overlay_network: 10.99.0.0
 kubernetes_overlay_prefix: 16
 kubernetes_subnets: 24
 kubernetes_subnets_min: 10.99.1.0
 kubernetes_subnets_max: 10.99.50.0
-kubernetes_backend: udp
+kubernetes_backend: vxlan
 
 fleet_delegation: "{{ bastion_host }}.{{ dns_base }}"

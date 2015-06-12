@@ -1,0 +1,10 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:42:00 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+dependencies:
+  - ceph/common

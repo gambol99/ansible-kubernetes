@@ -28,12 +28,15 @@
 - name: restarting the bastion service 
   run_once: true
   delegate_to: "{{ fleet_delegation }}"
-  shell: fleetctl destroy bastion && fleetctl start /config/bastion/bastion.service 
-  when: service_file.changed 
+  fleet:
+    command: stop 
+    unit: bastion.service 
+  when: service_file.changed
   tags: bastion
 
 - name: deploy the bastion service via fleet
   delegate_to: "{{ fleet_delegation }}"
-  sudo: yes
-  shell: fleetctl start /config/bastion/bastion.service
+  fleet:
+    command: start
+    unit: /config/bastion/bastion.service
   tags: bastion

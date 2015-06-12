@@ -7,15 +7,8 @@
 ---
 
 - name: create the location configuration directory
-  sudo: yes
-  file:
-    path: "{{ item.path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0550
+  file: path="{{ item.path }}" state=directory owner=root group=root mode=0550
   with_items:
     - path: /config
-  tags:
-    - config
+  tags: config
 

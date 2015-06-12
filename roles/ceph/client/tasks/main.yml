@@ -1,0 +1,29 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:58:15 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the ceph config fleet unit
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  template: src=ceph-config.service.j2 dest=/config/ceph/ceph-config.service
+  tags: 
+    - ceph
+    - ceph-client
+
+- name: starting the ceph config service via fleet
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  fleet:
+    command: start
+    unit: /config/ceph/ceph-config.service
+  tags: 
+    - ceph
+    - ceph-client
+
+- name: adding the rbd command
+  template: src=rbd.j2 dest=/host/opt/bin/rbd mode=0555
+  tags: ceph-client

@@ -1,0 +1,25 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:36:06 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+- name: create the ceph store fleet unit
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  template: 
+    src:  ceph-store.service.j2
+    dest: /config/ceph/ceph-store.service
+  tags: 
+    - ceph
+    - ceph-store
+
+- name: starting the ceph service via fleet
+  run_once: true
+  delegate_to: "{{ fleet_delegation }}"
+  shell: fleetctl start /config/ceph/ceph-store.service
+  tags: 
+    - ceph
+    - ceph-store

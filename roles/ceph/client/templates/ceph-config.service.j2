@@ -1,0 +1,38 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:17:51 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+
+[Unit]
+Description=Ceph Configuration
+After=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+Restart=always
+RestartSec=10s
+TimeoutStartSec=0
+TimeoutStopSec=0
+
+ExecStartPre=/usr/bin/docker pull {{ ceph_client_rbd_image }}:{{ ceph_client_rbd_image_tag }}
+ExecStartPre=/usr/bin/docker pull {{ ceph_config_image }}:{{ ceph_config_image_tag }}
+ExecStartPre=-/usr/bin/docker kill ceph-config
+ExecStartPre=-/bin/mkdir -p /var/lib/ceph
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+  --rm --net=host --name=ceph-config \
+  -e HOST=${COREOS_PRIVATE_IPV4} \
+  -e ETCD_PORT=4001 \
+  -e ETCD=${COREOS_PRIVATE_IPV4} \
+  -e ETCD_PATH=/deis/store \
+  -e HOSTNAME=${HOSTNAME} \
+  -v /etc/ceph:/etc/ceph \
+  {{ ceph_config_image }}:{{ ceph_config_image_tag }}"
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+MachineMetadata=host=core
+Global=true

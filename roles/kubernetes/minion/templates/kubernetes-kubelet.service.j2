@@ -11,6 +11,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=kubernetes.proxy
 
 [Service]
+Environment=PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin'
 EnvironmentFile=/etc/environment
 Restart=always
 RestartSec=10

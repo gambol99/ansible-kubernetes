@@ -10,50 +10,29 @@
   template: src=kubernetes-token-auth.j2 dest="/config/kubernetes/{{ kubernetes_token_filename }}" mode=0400
   tags: 
     - kubernetes
-    - kubernetes-master
     - kubernetes-api
     - kubernetes-tokens
   when: kubernetes_token_auth is defined
-  
-- name: create the api fleet unit
-  delegate_to: "{{ fleet_delegation }}"
-  run_once: true
-  template: 
-    src:  kubernetes-api.service.j2
-    dest: /config/kubernetes/kubernetes-api.service
-  tags: 
-    - kubernetes
-    - kubernetes-master
-    - kubernetes-api
 
-- name: starting the api service via fleet
+- name: generate the service units
   delegate_to: "{{ fleet_delegation }}"
   run_once: true
-  shell: fleetctl start /config/kubernetes/kubernetes-api.service
-  tags: 
-    - kubernetes
-    - kubernetes-master
-    - kubernetes-api
+  template:
+    src: "{{ item }}.j2"
+    dest: "/config/kubernetes/{{ item }}"
+    mode: 0440
+  with_items:
+    - kubernetes-api.service
+    - kubernetes-api-presence.service
+  tags: kubernetes-api
 
-- name: create the api presence unit
+- name: submitting the kubernetes-api services via fleetctl
   delegate_to: "{{ fleet_delegation }}"
   run_once: true
-  template: 
-    src:  kubernetes-api-presence.service.j2
-    dest: /config/kubernetes/kubernetes-api-presence.service
-  tags: 
-    - kubernetes
-    - kubernetes-api
-    - kubernetes-master
-    - kubernetes-api-presence
-
-- name: starting the api presence service via fleet
-  delegate_to: "{{ fleet_delegation }}"
-  run_once: true
-  shell: fleetctl start /config/kubernetes/kubernetes-api-presence.service
-  tags: 
-    - kubernetes
-    - kubernetes-api
-    - kubernetes-master
-    - kubernetes-api-presence
-    
+  fleet:
+    command: start 
+    unit: "/config/kubernetes/{{ item }}"
+  with_items:
+    - kubernetes-api.service
+    - kubernetes-api-presence.service
+  tags: kubernetes-api  

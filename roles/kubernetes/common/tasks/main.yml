@@ -11,9 +11,3 @@
   tags: 
     - kubernetes
     - kubernetes-common
-
-- name: kubernetes profile.d
-  template: src=profile.d/kubernetes.sh.j2 dest=/etc/profile.d/kubernetes.sh mode=0555
-  tags: 
-    - kubernetes
-    - kubernetes-common

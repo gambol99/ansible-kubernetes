@@ -1,0 +1,14 @@
+#
+#   Author: Rohith
+#   Date: 2015-06-11 16:14:29 +0100 (Thu, 11 Jun 2015)
+#
+#  vim:ts=2:sw=2:et
+#
+---
+
+ceph_osd_image: deis/store-daemon
+ceph_osd_image_tag: "{{ ceph_version }}"
+
+ceph_gateway_image: deis/store-gateway
+ceph_gateway_image_tag: v1.7.1
+

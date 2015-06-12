@@ -35,7 +35,7 @@ def discovery_token(filename = ETCD_DISCOVERY_TOKEN)
     token = YAML.load(File.open(filename))['etcd_discovery_token']
   else 
     # step: we need to grab a new token
-    token = Net::HTTP.get(URI.parse('https://discovery.etcd.io/new?size=1'))
+    token = Net::HTTP.get(URI.parse('https://discovery.etcd.io/new'))
     # step: save the token for later use -
     File.open(filename, "w") { |fd| fd.write({ 'etcd_discovery_token' => token }.to_yaml) }
     token
@@ -100,10 +100,10 @@ Vagrant.configure(2) do |config|
           disk_filename = extra_disk(disk['name'], hostname)
           unless File.exist?(disk_filename)
             virtualbox.customize ['createhd', '--filename', disk_filename, '--size', disk['size'] ]
+            virtualbox.customize [ 'storageattach', :id, 
+              '--storagectl', 'IDE Controller', '--port', 1, '--device', index, 
+              '--type', 'hdd', '--medium', disk_filename ]
           end
-          virtualbox.customize [ 'storageattach', :id, 
-            '--storagectl', 'IDE Controller', '--port', 1, '--device', index, 
-            '--type', 'hdd', '--medium', disk_filename ]
         end
 
         (vbox['resources'] || {} ).each_pair do |key,value|

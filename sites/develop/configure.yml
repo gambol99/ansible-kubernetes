@@ -10,31 +10,31 @@
   gather_facts: false
   sudo: no  
   tasks:    
-    - name: wait for the box to bootstrap
-      shell: while ! timeout 1 bash -c "echo > /dev/tcp/{{ item }}/2023"; do sleep 0.3; done
+    - name: "wait for the box {{ item }} to bootstrap"
+      shell: while ! timeout 1 bash -c "echo > /dev/tcp/{{ item }}/2023"; do sleep 0.5; done
       with_items: groups['coreos']
-
+    
 - hosts: all
   gather_facts: true
+  vars:
+    bastion_hostname: "{{ bastion | default('core101') }}"
   tasks:
-    - include_vars: "vars/{{ location }}.yml"
-    - include_vars: "../sbx/vars/sbx.discovery.yml"
+    - include_vars: "vars/{{ location | mandatory }}.yml"
+    - include_vars: "vars/{{ location | mandatory }}.discovery.yml"
     - include_vars: "../../vars/facts/os.yml"
     - include: "../../vars/facts/main.yml"
+    - set_fact: bastion_host="{{ bastion_hostname }}"
   tags: location
 
 - hosts: all
   gather_facts: false
-  vars: 
-    fleet_delegation: "core101.{{ dns_base }}"
   roles:
     - common/bash
     - common/configdir
-    - bastion
-    - kubernetes/common
+  tags: common
+
+- hosts: all
+  gather_facts: false
+  roles:
     - kubernetes/master
     - kubernetes/minion
-  tags: 
-    - kubernetes
-    - bastion
-    - common

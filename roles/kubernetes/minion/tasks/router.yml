@@ -22,7 +22,9 @@
   run_once: true
   delegate_to: "{{ fleet_delegation }}"
   sudo: yes
-  shell: fleetctl list-units | grep kubernetes-router || fleetctl start /config/kubernetes/kubernetes-router.service
+  fleet: 
+    command: start 
+    unit: /config/kubernetes/kubernetes-proxy.service
   tags: 
     - kubernetes
     - kubernetes-minion

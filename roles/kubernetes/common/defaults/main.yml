@@ -8,3 +8,4 @@
 
 kubernetes_cluster_name: "kube-{{ location }}"
 kubernetes_dir: /opt/kubernetes
+kubernetes_master_proxy: 127.0.0.1:4343

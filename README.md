@@ -1,4 +1,16 @@
-## **Cloud Provisoning**
+## **CoreOS Kubernetes**
+
+The respository holds a ansible installation for deployment of below on CoreOS
+
+  - kubernetes framework
+  - ceph storage layer
+  - glusterfs storage
+
+Note: all the services are actually deployed via fleet, through the unit files are first templated and customized per role and or location. 
+
+#### **Ansible**
+
+A small container is deployed via fleet during the cloudinit process allowing as to run ansible on the boxes. We then map into various areas of the host filesystem so we may drop files, configs, certs etc etc.
 
 #### **Sites**
 ----
@@ -15,21 +27,22 @@ Dropped into the base directory is a ssh.config which is used to configure the b
 
 Dynamic inventory for vagrant and vcloud has been written and inventory directory. Both of these along with EC2 the inventory/group.yml to perform the groups and groups of groups and keeps things simple.
 
-
 ##### **Groups**
 
-Inside the inventory/ directory is a group.yml which is used to place the hosts into groups. Technically, I could grab this information from metadata in vcloud or tags in ec2 etc. Since I started testing with vcloud, the API is god awfully slow and this each host requires another api call I couldn't be asked to wait that long. So I use the regexes in the groups.yml aross vcloud, vagrant and ec2 to define the hostgroups
+Inside the inventory/ directory is a group.yml which is used to place the hosts into ansible groups, it effectively does nothing more than using regexes and hostnames and placing them into the appointed group.  
 
 #### **Building in vagrant**
 ----
 
     # for a kubernetes deployment
-    [jest@starfury ansible-vcloud]$ make sbx
-
-    [jest@starfury ansible-vcloud]$ make sbc-play
+    [jest@starfury ansible-kubernetes]$ make sbx
+    # the sbx-play with run the ansible playbook again
+    [jest@starfury ansible-kubernetes]$ make sbx-play
+    # build the ceph storage layer
+    [jest@starfury ansible-kubernetes]$ make ceph
 
 Take a look at the Makefile to see whats happening.
 
-#### ** Etcd Discovery **
+#### **Etcd Discovery**
 
 Assuming your using CoreOS a discovery token will automatially genereated for you under the var/location/sbx.discovery.yml on the first vagrant up.

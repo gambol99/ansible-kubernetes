@@ -24,7 +24,7 @@
   sudo: yes
   fleet: 
     command: start 
-    unit: /config/kubernetes/kubernetes-proxy.service
+    unit: /config/kubernetes/kubernetes-router.service
   tags: 
     - kubernetes
     - kubernetes-minion

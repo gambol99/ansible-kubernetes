@@ -18,8 +18,8 @@ RestartSec=10
 EnvironmentFile=/etc/environment
 
 ExecStartPre=/bin/mkdir -p /opt/bin
-ExecStartPre=/bin/wget -q {{ kubernetes_router_release }} -O /opt/bin/embassy.gz 
-ExecStartPre=/bin/gunzip /opt/bin/embassy.gz 
+ExecStartPre=-/bin/wget -q {{ kubernetes_router_release }} -O /opt/bin/embassy.gz 
+ExecStartPre=-/bin/gunzip /opt/bin/embassy.gz 
 ExecStartPre=/usr/bin/chmod +x /opt/bin/embassy
 ExecStart=/opt/bin/embassy \
   -provider=static \

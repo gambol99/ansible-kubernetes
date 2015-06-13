@@ -7,15 +7,26 @@
 AUTHOR=gambol99
 CORE_BOXES=core101 core102
 STORE_BOXES=store101 store102
+GLUSTER_BOXES=gluster101 gluster102
+PWD=$(shell pwd)
 
-.PHONY: build ansible sbx kube-play mesos-play kube kuberbetes mesos
+.PHONY: build ansible sbx sbx-play ceph ceph-play stop-mirror
 
 ansible:
-	docker build -t ${AUTHOR}/ansible .
+	sudo docker build -t ${AUTHOR}/ansible .
 
 develop:
 	vagrant up /core101/
 	make develop-play
+
+mirror:
+	export DOCKER_MIRROR="YES"
+	sudo docker run -d -p 5000:5000 \
+    --name docker-mirror \
+    -e STANDALONE=false \
+    -e MIRROR_SOURCE=https://registry-1.docker.io \
+    -e MIRROR_SOURCE_INDEX=https://index.docker.io \
+    registry
 
 develop-play:
 	./run -s develop -i vagrant -p configure.yml
@@ -29,8 +40,9 @@ halt:
 	vagrant halt
 
 gluster:
-	vagrant up /gluster101/
-	vagrant up /gluster102/
+	$(foreach I, $(CORE_BOXES), \
+		vagrant up /$(I)/ ; \
+	)
 	make sbx-play
 
 all:

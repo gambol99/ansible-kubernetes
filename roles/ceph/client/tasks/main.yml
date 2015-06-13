@@ -26,4 +26,6 @@
 
 - name: adding the rbd command
   template: src=rbd.j2 dest=/host/opt/bin/rbd mode=0555
-  tags: ceph-client
+  tags: 
+    - ceph
+    - ceph-client

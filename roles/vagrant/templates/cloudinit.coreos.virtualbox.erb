@@ -121,6 +121,8 @@ coreos:
     metadata: cluster=dev,location=dev,host=<%= @hostname.gsub(/[0-9]*/,'') %>,<%= @fleet.map { |k,v| "#{k}=#{v}" }.join(',') %>
   flannel:
     interface: eth1
+  update:
+    reboot-strategy: off
   units:
     - name: etcd.service
       command: start
@@ -152,6 +154,18 @@ coreos:
         RemainAfterExit=yes
         ExecStartPre=/bin/ip link delete docker0
         ExecStart=/bin/systemctl restart docker
+    <%- if docker_mirror? -%>
+    - name: docker.service
+      command: start
+      drop-ins:
+      - name: 51-docker-mirror.conf
+        content: |
+          [Unit]
+          Requires=flanneld.service
+          After=flanneld.service
+          [Service]
+          Environment=DOCKER_OPTS='--registry-mirror=http://10.250.1.1:5000'
+    <%- end -%>
     - name: format-ephemeral.service
       command: start
       content: |
@@ -195,8 +209,8 @@ coreos:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStartPre=/usr/sbin/wipefs -f /dev/sdc
-        ExecStartPre=/usr/sbin/mkfs.xfs /dev/sdc
+        ExecStartPre=-/usr/sbin/wipefs /dev/sdc
+        ExecStartPre=-/usr/sbin/mkfs.xfs /dev/sdc
         ExecStart=/bin/mkdir -p <%= mountpount %>
     - name: <%= mountpount.gsub('/','-') %>.mount
       command: start
@@ -205,7 +219,6 @@ coreos:
         Description=Mount ephemeral to /var/lib/docker
         Requires=format-storage.service
         After=format-storage.service
-        Before=docker.service
         [Mount]
         What=/dev/sdc
         Where=/<%= mountpount %>
@@ -291,7 +304,7 @@ coreos:
         RemainAfterExit=yes
         TimeoutStartSec=300
         ExecStartPre=-/usr/bin/mkdir -p /opt/kubernetes/bin
-        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.17.1/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
-        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.17.1/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.18.2/bin/linux/amd64/hyperkube -O /opt/kubernetes/bin/hyperkube
+        ExecStartPre=-/usr/bin/wget -q https://storage.googleapis.com/kubernetes-release/release/v0.18.2/bin/linux/amd64/kubectl -O /opt/kubernetes/bin/kubectl
         ExecStart=/bin/chmod +x /opt/kubernetes/bin/hyperkube /opt/kubernetes/bin/kubectl
 EOF

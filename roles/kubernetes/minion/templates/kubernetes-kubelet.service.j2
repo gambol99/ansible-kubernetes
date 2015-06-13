@@ -11,7 +11,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=kubernetes.proxy
 
 [Service]
-Environment=PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin'
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 EnvironmentFile=/etc/environment
 Restart=always
 RestartSec=10
@@ -24,9 +24,10 @@ ExecStart={{ kubernetes_dir }}/bin/hyperkube kubelet \
   --cluster-domain={{ dns_base }} \
   --api_servers=127.0.0.1:4343 \
   --allow_privileged=true \
-  --logtostderr=true \
   --healthz_bind_address=0.0.0.0 \
-  --healthz_port=10248
+  --healthz_port=10248 \
+  --logtostderr=true \
+  --v={{ kubernetes_verbosity }}
 
 [Install]
 WantedBy=multi-user.target

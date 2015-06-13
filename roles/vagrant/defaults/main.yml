@@ -41,6 +41,18 @@ boxes:
     fleet:
        ceph_monitor: true
        ceph_osd: true
+  store103.sbx.example.com:
+    virtualbox:
+      <<: *COREOSBOX_DEFAULT
+      ip: 10.250.1.55
+      disks:
+      - name: docker
+        size: 8192
+      - name: ceph
+        size: 8192
+    fleet:
+       ceph_monitor: true
+       ceph_osd: true
   gluster101.sbx.example.com:
     virtualbox:
       <<: *COREOSBOX_DEFAULT

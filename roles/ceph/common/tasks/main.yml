@@ -24,7 +24,3 @@
 #  run_once: true 
 #  shell: /usr/bin/docker exec -ti ceph-monitor ceph osd pool set rbd size 1
 #  when:  store_hosts | int <= 2
-
-- name: adding the hosts to the storage hosts namespace
-  shell: /bin/etcdctl set /deis/store/hosts/$(hostname -i) {{ inventory_hostname }}
-  tags: ceph

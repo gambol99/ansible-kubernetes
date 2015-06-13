@@ -23,3 +23,15 @@
   tags: 
     - ceph
     - ceph-monitor
+
+- name: adding the ceph shortcut command
+  template: src=ceph.j2 dest=/host/opt/bin/ceph mode=0555
+  tags: 
+    - ceph
+    - ceph-monitor
+
+- name: adding the hosts to the storage hosts namespace
+  shell: /bin/etcdctl set /deis/store/hosts/$(hostname -i) {{ inventory_hostname }}
+  tags:
+    - ceph
+    - ceph-monitor

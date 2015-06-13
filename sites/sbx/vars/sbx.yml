@@ -25,5 +25,6 @@ kubernetes_subnets: 24
 kubernetes_subnets_min: 10.99.1.0
 kubernetes_subnets_max: 10.99.50.0
 kubernetes_backend: vxlan
+kubernetes_verbosity: 10
 
 fleet_delegation: "{{ bastion_host }}.{{ dns_base }}"

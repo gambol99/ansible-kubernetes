@@ -16,7 +16,7 @@ RestartSec=10s
 TimeoutStartSec=0
 TimeoutStopSec=0
 
-ExecStartPre=/usr/bin/docker pull {{ ceph_client_rbd_image }}:{{ ceph_client_rbd_image_tag }}
+#ExecStartPre=/usr/bin/docker pull {{ ceph_client_rbd_image }}:{{ ceph_client_rbd_image_tag }}
 ExecStartPre=/usr/bin/docker pull {{ ceph_config_image }}:{{ ceph_config_image_tag }}
 ExecStartPre=-/usr/bin/docker kill ceph-config
 ExecStartPre=-/bin/mkdir -p /var/lib/ceph

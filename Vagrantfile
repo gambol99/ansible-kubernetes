@@ -16,6 +16,7 @@ VAGRANT_DEFAULT_PROVIDER = 'virtualbox'
 ENVIRONMENT_CONFIG       = "./config.yml"
 EXTRA_DISKS              = "./extra_disks"
 ETCD_DISCOVERY_TOKEN     = "./sites/sbx/vars/sbx.discovery.yml"
+DOCKER_MIRROR            = "DOCKER_MIRROR"
 VAGRANT_PLUGINS = [
   'vagrant-hostsupdater'
 ]       
@@ -23,6 +24,13 @@ VAGRANT_PLUGINS = [
 def boxes
   require ArgumentError, "unable to find the vagrant config" unless File.exist?(ENVIRONMENT_CONFIG)
   YAML.load(File.read(ENVIRONMENT_CONFIG))['boxes'] || {}
+end
+
+#
+# Are we running a local docker mirror?
+#
+def docker_mirror?
+  !ENV[DOCKER_MIRROR].nil?
 end
 
 #

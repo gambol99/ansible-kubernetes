@@ -41,11 +41,9 @@
 
 - hosts: core
   gather_facts: false
-  vars:
-    store_hosts: length(groups['store'])
   roles:
-    - { role: ceph/client, when: store_hosts | int >= 1  }
-
+    - { role: ceph/client, when: "groups['ceph']" }
+  
 - hosts: gluster
   gather_facts: false
   roles:

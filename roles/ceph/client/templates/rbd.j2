@@ -5,8 +5,104 @@
 #
 #  vim:ts=2:sw=2:et
 #
-/usr/bin/docker run -ti --rm \
-  --privileged --net host \
-  -v /proc:/host/proc \
-  -v /etc/ceph:/etc/ceph:ro \
-  -v /dev:/dev {{ ceph_client_rbd_image }}:{{ ceph_client_rbd_image_tag }} "$@"
+
+RBD_MODULE=rbd
+RBD_RAW=${RBD_RAW:-0}
+RBD_DIR=rbd
+RBD_DEFAULT_GROUP=rbd
+DOCKER=/usr/bin/docker
+DOCKER_IMAGE="{{ ceph_config_image }}:{{ ceph_config_image_tag }}"
+COMMAND_OPTIONS=($@)
+COMMAND=${COMMAND_OPTIONS[0]}
+
+
+failed() {
+  [ -n "$@" ] && { echo "$@"; exit 1; }
+} 
+
+image_mapped() {
+  run_rdb "showmapped" | grep -q "${1}" && return 0 || return 1
+}
+
+get_device_from_image() {
+  run_rdb "showmapped" | grep "$1" | tail -n1 | awk "{ print \$5 }"
+}
+
+get_image_from_device() {
+  run_rdb "showmapped" | grep "$1" | tail -n1 | awk "{ print \$3 }"  
+}
+
+kernel_module() {
+  if ! sudo /usr/sbin/lsmod | grep -q ^${RBD_MODULE}; then 
+    sudo /usr/sbin/modprobe ${RBD_MODULE} || failed "Failed to load the kernel rbd driver: ${RBD_MODULE}"
+  fi
+}
+
+run_rdb() {
+  $DOCKER run --rm \
+    --privileged --net host \
+    -v /proc:/host/proc -v /etc/ceph:/etc/ceph:ro \
+    -v /dev:/dev -v /sys:/sys \
+    ${DOCKER_IMAGE} \
+    rbd $@  
+  RET=$?
+
+  [ $? -ne 0 ] && exit $?  
+}
+
+mapping_image() {
+  # step: map the drive
+  run_rdb $@
+  # step: fixup the path for kubernetes
+  IMAGE_NAME=${COMMAND_OPTIONS[1]}
+  POOL_NAME=${COMMAND_OPTIONS[3]:-$RBD_DEFAULT_GROUP}
+  IMAGE_LINK="/dev/${RBD_DIR}/${POOL_NAME}/${IMAGE_NAME}"
+  DEVICE=""
+  # step: check if the mount was successful
+  if image_mapped $IMAGE_NAME; then 
+    # step: ensure we have the device path
+    sudo mkdir -p /dev/rbd/${POOL_NAME}
+    # step: get the device name
+    DEVICE=$(get_device_from_image $IMAGE_NAME)
+    # step: map the device
+    sudo ln -fs $DEVICE ${IMAGE_LINK}
+  fi
+  # step: create the mountpoint for kubernetes
+  MOUNTPOINT="/var/lib/kubelet/plugins/kubernetes.io/rbd/${POOL_NAME}/rbd-image-${IMAGE_NAME}"
+  [ -d "$MOUNTPOINT" ] || sudo mkdir -p $MOUNTPOINT
+  # step: mount the drive
+  sudo mount -t auto $DEVICE $mountpoint 
+}
+
+unmapping_image() {
+  # step: remove the symlinks
+  DEVICE_NAME=${COMMAND_OPTIONS[2]}
+  POOL_NAME=$RBD_DEFAULT_GROUP
+  # step: get the image from the device name
+  IMAGE_NAME=$(get_image_from_device $DEVICE_NAME)
+  IMAGE_LINK="/dev/${RBD_DIR}/${POOL_NAME}/${IMAGE_NAME}"
+  # step: delete the symbolic link to the image
+  [ -L "${IMAGE_LINK}" ] && sudo rm -f ${IMAGE_LINK}
+  # step: unmap the drive
+  run_rdb $@
+}
+
+# step: ensure the kernel support module
+kernel_module
+
+if [ $RBD_RAW -eq 1 ]; then 
+  run_rdb $@
+  exit $RET
+fi
+
+# step: process the command
+case "$COMMAND" in
+  map)    mapping_image $@
+          ;;
+  unmap)  unmapping_image $@
+          ;;
+  *)      run_rdb $@
+          ;;
+esac
+
+exit 0

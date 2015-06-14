@@ -114,35 +114,35 @@ Vagrant.configure(2) do |config|
           end
         end
 
+        # step: apply the customizaitions
         (vbox['resources'] || {} ).each_pair do |key,value|
           virtualbox.customize [ "modifyvm", :id, "--#{key}", value ]
         end
 
-        if is_coreos
-          config.vm.provision :shell, :inline => cloudinit, :privileged => true
-        end
-
-        config.vm.provision "ansible" do |ansible|
-          ansible.playbook = "provision-vagrant.yml" 
-          ansible.sudo     = true
-          ansible.extra_vars = {
-            "hostname"  => hostname,
-            "location"  => "sbx",     
-            "iface"     => "enp0s8",
-            "is_coreos" => false,
-          }
-          if is_coreos
-            ansible.extra_vars.merge!({
-              "ansible_ssh_user"           => "core",
-              "iface"                      => "eth1",
-              "is_coreos"                  => true,
-            })
-          end
-        end 
-
         # step: the override for virtualbox
         override.vm.network :private_network, ip: vbox['ip']
       end
+      
+      # step: perform a fake cloudinit on the box  
+      config.vm.provision :shell, :inline => cloudinit, :privileged => true if is_coreos
+      
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "provision-vagrant.yml" 
+        ansible.sudo     = true
+        ansible.extra_vars = {
+          "hostname"  => hostname,
+          "location"  => 'sbx',     
+          "iface"     => 'enp0s8',
+          "is_coreos" => false,
+        }
+        if is_coreos
+          ansible.extra_vars.merge!({
+            "ansible_ssh_user" => "core",
+            "iface"            => "eth1",
+            "is_coreos"        => true,
+          })
+        end
+      end 
     end
   end
 end

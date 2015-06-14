@@ -16,6 +16,13 @@ default_coreos_virtualbox: &COREOSBOX_DEFAULT
     memory: 2048
     biosbootmenu: disabled
 
+default_coreos_virtualbox: &COREOS_STORE_BOX_DEFAULT
+  <<: *COREOSBOX_DEFAULT
+  resources:
+    cpus: 1
+    memory: 1024
+    biosbootmenu: disabled
+
 boxes:
   store101.sbx.example.com:
     virtualbox:

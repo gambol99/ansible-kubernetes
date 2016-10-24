@@ -10,7 +10,7 @@ Note: all the services are actually deployed via fleet, through the unit files a
 
 #### **Ansible**
 
-A small container is deployed via fleet during the cloudinit process allowing as to run ansible on the boxes. We then map into various areas of the host filesystem so we may drop files, configs, certs etc etc.
+A small container is deployed via fleet during the cloudinit process allowing us to run ansible on the boxes. We then map into various areas of the host filesystem so we may drop files, configs, certs etc etc.
 
 #### **Sites**
 ----
